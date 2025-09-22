@@ -1,0 +1,553 @@
+---
+description: Comprehensive user interaction guidelines, communication standards, and best practices for working with the Arcipelago International studio system AI agents
+globs: **/*.*
+alwaysApply: true
+---
+
+# User Rules - Enhanced Edition
+
+These rules define how to interact with AI agents, communication guidelines, and best practices for working with the Arcipelago International studio system. This enhanced version incorporates Cursor IDE best practices, memories integration, and advanced collaboration patterns.
+
+## 🎯 Core Philosophy
+
+**"Think Fast, Ship Faster"** - Our studio philosophy emphasizes rapid iteration, collaborative problem-solving, and continuous learning. We believe in shipping early, gathering feedback, and iterating quickly rather than waiting for perfection.
+
+## 🤖 Agent Interaction Guidelines
+
+### How to Activate Agents
+
+#### 1. Direct Agent Invocation
+
+Use `@agent-name` followed by your request for specific expertise:
+
+```markdown
+@ux-researcher, please conduct a user interview for our new feature
+
+@mobile-app-builder, create a login component for iOS and Android
+
+@feedback-synthesizer, analyze user feedback and prioritize features
+```
+
+#### 2. Expertise-Based Requests
+
+Describe what you need without mentioning a specific agent - let agents self-select:
+
+```markdown
+I need help analyzing user feedback and prioritizing features for the next sprint
+
+Create a component that allows users to upload and preview images
+
+Design a user onboarding flow that reduces drop-off by 50%
+```
+
+#### 3. Task-Based Requests
+
+Clearly describe the task and let agents self-select based on their expertise:
+
+```markdown
+Implement a real-time chat feature with message history
+
+Optimize the build pipeline to reduce deployment time by 30%
+
+Create A/B test variants for the pricing page
+```
+
+## 📋 Communication Best Practices
+
+### Structure Your Requests Effectively
+
+#### **Context-First Approach**
+
+Always provide context before diving into requirements:
+
+```markdown
+**Context**: We're building a fitness tracking app and users are struggling with the onboarding flow
+
+**Goal**: Create a smoother onboarding experience that improves completion rates
+
+**Requirements**: Include social login, progress indicators, and personalized recommendations
+
+**Timeline**: Need this by end of sprint (Friday)
+
+**Format**: Provide React Native components with TypeScript
+```
+
+#### **SMART Request Format**
+
+- **Specific**: Clear, actionable tasks
+- **Measurable**: Include success metrics
+- **Achievable**: Realistic scope for timeline
+- **Relevant**: Aligned with project goals
+- **Time-bound**: Clear deadlines
+
+### Advanced Request Patterns
+
+#### **Multi-Agent Coordination**
+
+For complex tasks requiring multiple expertise areas:
+
+```markdown
+@ux-researcher and @visual-storyteller need to collaborate on the new user onboarding flow
+
+@feedback-synthesizer and @sprint-prioritizer, let's analyze user feedback to plan next sprint
+
+@mobile-app-builder and @performance-benchmarker, optimize the app for better battery life
+```
+
+#### **Project Coordination**
+
+Use the studio producer for overall project management:
+
+```markdown
+@studio-producer, please coordinate the team for the new feature launch
+
+@studio-producer, help me break down this complex feature into manageable tasks
+```
+
+## 🏗️ Agent Selection Guidelines
+
+### When to Use Which Agent
+
+#### **Design Department**
+
+- **@ux-researcher**: User research, usability testing, user interviews, behavioral analysis
+- **@visual-storyteller**: Visual design, narrative design, storytelling, user journey mapping
+- **@brand-guardian**: Brand consistency, visual identity, design system maintenance
+- **@whimsy-injector**: Creative elements, playful design, delightful user experiences
+
+#### **Engineering Department**
+
+- **@ai-engineer**: AI implementation, machine learning, AI architecture, data science
+- **@devops-automator**: Infrastructure, deployment pipelines, CI/CD, automation
+- **@mobile-app-builder**: Mobile development, iOS/Android, React Native, Flutter
+- **@rapid-prototyper**: Quick prototyping, MVP development, fast iteration
+- **@test-writer-fixer**: Testing, test automation, quality assurance, TDD
+
+#### **Marketing Department**
+
+- **@growth-hacker**: Growth strategies, user acquisition, conversion optimization, A/B testing
+- **@instagram-curator**: Instagram content, social media strategy, visual marketing
+- **@reddit-community-builder**: Reddit marketing, community management, subreddit strategy
+- **@tiktok-strategist**: TikTok content, short-form video, viral marketing strategies
+- **@twitter-engager**: Twitter strategy, social media engagement, tweet optimization
+
+#### **Product Department**
+
+- **@feedback-synthesizer**: User feedback analysis, product improvement, feature prioritization
+- **@sprint-prioritizer**: Sprint planning, task prioritization, backlog management, agile processes
+- **@trend-researcher**: Market research, trend analysis, competitive intelligence, industry insights
+
+#### **Project Management Department**
+
+- **@experiment-tracker**: A/B testing, experiment management, conversion optimization, data analysis
+- **@project-shipper**: Product launches, go-to-market strategy, release management
+- **@studio-producer**: Project coordination, team management, stakeholder communication, resource allocation
+
+#### **Studio Operations Department**
+
+- **@analytics-reporter**: Data analysis, reporting, performance metrics, business intelligence
+- **@finance-tracker**: Budget management, cost tracking, financial planning, ROI analysis
+- **@infrastructure-maintainer**: System maintenance, infrastructure management, technical operations
+- **@legal-compliance-checker**: Legal compliance, regulatory requirements, policy management
+- **@support-responder**: Customer support, issue resolution, help desk management
+
+#### **Testing Department**
+
+- **@api-tester**: API testing, integration testing, endpoint validation, contract testing
+- **@performance-benchmarker**: Performance testing, load testing, optimization analysis, scalability testing
+- **@test-results-analyzer**: Test analysis, quality metrics, testing insights, test reporting
+- **@tool-evaluator**: Tool assessment, technology evaluation, development workflow optimization
+- **@workflow-optimizer**: Process improvement, workflow optimization, productivity enhancement
+
+#### **Bonus Department**
+
+- **@joker**: Tech humor, programming jokes, team morale, icebreakers, stress relief
+
+## 🚀 Advanced Collaboration Patterns
+
+### **Memories Integration**
+
+Cursor Memories allow agents to maintain context across sessions. When working on complex projects:
+
+1. **Reference Previous Work**: Agents can recall past decisions and implementations
+2. **Maintain Consistency**: Ensure design patterns and architectural choices remain consistent
+3. **Learn from Feedback**: Store lessons learned for future improvements
+4. **Track Progress**: Monitor project evolution and team preferences
+
+### **Cross-Departmental Workflows**
+
+For complex features requiring multiple expertise areas:
+
+```markdown
+@studio-producer, coordinate a cross-functional team for this initiative:
+
+1. @ux-researcher: Research user needs and validate assumptions
+2. @visual-storyteller: Design the user experience and interface
+3. @mobile-app-builder: Implement the technical solution
+4. @test-writer-fixer: Create comprehensive tests
+5. @performance-benchmarker: Optimize for performance
+```
+
+### **Sprint-Based Development**
+
+Following our 6-day sprint methodology:
+
+```markdown
+**Sprint Context**: Day 3 of Sprint 12 - Authentication feature
+**Today's Focus**: Implement social login functionality
+**Yesterday's Progress**: Completed basic login form
+**Blockers**: Need OAuth integration guidance
+**Tomorrow's Goal**: Complete registration flow
+```
+
+## 📊 Quality and Review Standards
+
+### **Code Quality Expectations**
+
+#### **Follow Project Rules**
+
+All code must adhere to our established coding standards and architectural patterns.
+
+#### **Test Coverage**
+
+- Include appropriate unit tests for new functionality
+- Add integration tests for complex workflows
+- Consider edge cases and error scenarios
+- Include accessibility testing where applicable
+
+#### **Documentation**
+
+- Provide clear JSDoc comments for functions
+- Document complex business logic
+- Include usage examples in code comments
+- Update README files for new features
+
+#### **Performance Considerations**
+
+- Optimize database queries and API calls
+- Implement proper caching strategies
+- Consider bundle size and loading performance
+- Profile and optimize slow operations
+
+#### **Security Best Practices**
+
+- Validate all user inputs
+- Implement proper authentication and authorization
+- Use parameterized queries to prevent SQL injection
+- Follow OWASP security guidelines
+
+### **Review Process**
+
+#### **Self-Review Checklist**
+
+Before submitting work for review, agents should:
+
+1. ✅ Test functionality works as expected
+2. ✅ Follow coding standards and best practices
+3. ✅ Include appropriate error handling
+4. ✅ Add necessary documentation
+5. ✅ Consider edge cases and error scenarios
+6. ✅ Verify performance implications
+7. ✅ Check security considerations
+
+#### **Code Review Guidelines**
+
+- Focus on functionality, not just style
+- Look for potential bugs and edge cases
+- Ensure accessibility compliance
+- Verify security best practices
+- Check for performance issues
+- Confirm documentation is adequate
+
+## 🔄 Feedback and Iteration
+
+### **Providing Constructive Feedback**
+
+#### **Be Specific and Actionable**
+
+Instead of: "This doesn't work"
+Say: "The login form doesn't handle the case where users enter an invalid email format"
+
+#### **Include Context**
+
+Instead of: "Change this"
+Say: "This component should match the design system pattern used in the navigation header"
+
+#### **Set Priorities**
+
+Indicate which changes are most important:
+
+```markdown
+**High Priority**: Fix the authentication bug - blocking user login
+**Medium Priority**: Improve error messaging for better UX
+**Low Priority**: Optimize loading performance - can be done later
+```
+
+### **Requesting Revisions**
+
+#### **Clear Revision Requests**
+
+```markdown
+@agent-name, the previous implementation needs these changes:
+
+1. **Issue**: The component doesn't handle edge cases properly
+2. **Expected**: Should handle empty states gracefully
+3. **Priority**: High - blocking user testing
+4. **Context**: This affects the main user onboarding flow
+
+Please revise and provide updated code.
+```
+
+#### **Iterative Improvement**
+
+```markdown
+@agent-name, great work on the first version! I've tested it and have some feedback:
+
+**Works Well:**
+- Clean code structure
+- Good error handling
+- Nice user experience
+
+**Suggestions for Improvement:**
+1. Add loading states for better UX
+2. Consider adding keyboard navigation
+3. Optimize the API calls to reduce requests
+
+**Questions:**
+- How would you handle offline scenarios?
+- Are there any accessibility features I should be aware of?
+```
+
+## 🚨 Emergency and Urgent Requests
+
+### **Priority Levels**
+
+#### **Critical** 🚨
+
+- System down or severely broken
+- Security vulnerabilities
+- Data loss or corruption
+- Complete feature blockage
+
+#### **High** ⚡
+
+- Blocking development or testing
+- Missed deadlines approaching
+- Significant user impact
+- Important feature incomplete
+
+#### **Medium** 📋
+
+- Important but not blocking
+- Nice to have improvements
+- Future optimizations
+- Code quality enhancements
+
+#### **Low** 📝
+
+- Minor improvements
+- Future considerations
+- Documentation updates
+- Code cleanup
+
+### **Urgent Request Format**
+
+```markdown
+🚨 URGENT: @agent-name
+
+**Priority**: Critical
+**Issue**: [Brief description of the problem]
+**Impact**: [What happens if not fixed immediately]
+**Timeline**: ASAP / Within 2 hours / By EOD
+**Context**: [Any relevant background information]
+```
+
+## 📚 Documentation and Knowledge Sharing
+
+### **What to Document**
+
+#### **Decision Records**
+
+- Why certain approaches were chosen
+- Alternatives considered and why they were rejected
+- Trade-offs and compromises made
+- Future considerations and technical debt
+
+#### **Architecture Decisions**
+
+- System design choices
+- Technology stack decisions
+- Integration patterns selected
+- Performance considerations
+
+#### **User Guides**
+
+- How to use new features
+- Setup and configuration instructions
+- Troubleshooting guides
+- Best practices for users
+
+### **Documentation Standards**
+
+#### **Code Comments**
+
+```typescript
+/**
+ * Handles user authentication with multiple providers
+ * @param credentials - User login credentials
+ * @param options - Authentication options and providers
+ * @returns Promise resolving to user session data
+ * @throws AuthenticationError if credentials are invalid
+ */
+async authenticateUser(credentials: Credentials, options: AuthOptions): Promise<Session>
+```
+
+#### **README Structure**
+
+```markdown
+# Feature Name
+
+## Overview
+Brief description of what this feature does
+
+## Installation
+How to install or enable this feature
+
+## Usage
+Code examples and usage patterns
+
+## Configuration
+Available options and settings
+
+## Troubleshooting
+Common issues and solutions
+
+## Contributing
+How to contribute to this feature
+```
+
+## 🎨 Communication Style Guidelines
+
+### **Tone and Approach**
+
+#### **Professional but Approachable**
+
+Maintain professionalism while being friendly and accessible:
+
+- Use clear, direct language
+- Be helpful and supportive
+- Acknowledge user expertise
+- Offer options rather than dictate solutions
+
+#### **Solution-Oriented**
+
+Focus on solving problems and achieving goals:
+
+- Propose multiple solutions when appropriate
+- Explain reasoning behind recommendations
+- Offer to help implement solutions
+- Follow up on progress and results
+
+### **Language Guidelines**
+
+#### **Clarity First**
+
+- Use simple, straightforward language
+- Avoid unnecessary jargon
+- Explain technical terms when used
+- Be concise but comprehensive
+
+#### **Structured Communication**
+
+- Use headers and bullet points for readability
+- Group related information together
+- Include examples when helpful
+- Format code and commands properly
+
+#### **Inclusive Language**
+
+- Use gender-neutral terms
+- Avoid assumptions about user knowledge
+- Be respectful of different skill levels
+- Acknowledge diverse perspectives
+
+## 🏆 Best Practices Summary
+
+### **For Getting Work Done**
+
+1. **Be specific** about what you need - clear goals lead to better results
+2. **Provide context** about the situation - helps agents understand constraints
+3. **Set clear expectations** for timeline, format, and quality standards
+4. **Use appropriate agents** for the task - leverage their specialized expertise
+5. **Review and provide feedback** on deliverables - continuous improvement cycle
+
+### **For Complex Projects**
+
+1. **Break down large tasks** into smaller, manageable pieces
+2. **Coordinate between agents** when multiple expertise areas are needed
+3. **Document progress** and decisions along the way
+4. **Plan for testing and review** cycles at each milestone
+5. **Celebrate milestones** and completed work - maintain momentum
+
+### **For Quality Assurance**
+
+1. **Test thoroughly** before declaring work complete
+2. **Follow coding standards** and architectural patterns
+3. **Consider edge cases** and error scenarios
+4. **Document assumptions** and limitations
+5. **Request feedback** when unsure about approach or implementation
+
+### **For Team Collaboration**
+
+1. **Communicate clearly** and regularly with team members
+2. **Respect expertise** of different departments and agents
+3. **Share knowledge** and best practices across the team
+4. **Give credit** where credit is due
+5. **Help each other** succeed - we're all on the same team
+
+## 🌟 Advanced Features
+
+### **Memories Integration**
+
+- Agents maintain context across sessions
+- Learn from past interactions and feedback
+- Remember project-specific preferences
+- Track evolving requirements and constraints
+
+### **Multi-Modal Collaboration**
+
+- Combine text, code, and visual communication
+- Use diagrams and mockups for complex concepts
+- Leverage code examples and live editing
+- Integrate with external tools and services
+
+### **Proactive Assistance**
+
+- Agents can suggest improvements and optimizations
+- Identify potential issues before they become problems
+- Offer relevant alternatives and considerations
+- Provide context-aware recommendations
+
+## 📈 Success Metrics
+
+### **Project Success Indicators**
+
+- **Velocity**: Consistent progress toward goals
+- **Quality**: Minimal bugs and issues
+- **Collaboration**: Effective cross-functional teamwork
+- **Learning**: Continuous improvement and knowledge sharing
+- **Innovation**: Creative solutions to complex problems
+
+### **Individual Performance**
+
+- **Responsiveness**: Quick and helpful replies
+- **Accuracy**: Correct and reliable information
+- **Thoroughness**: Complete and well-considered solutions
+- **Adaptability**: Flexibility to changing requirements
+- **Initiative**: Proactive suggestions and improvements
+
+---
+
+*"The best way to predict the future is to create it." - Peter Drucker*
+
+This enhanced user rules system is designed to be flexible, adaptive, and continuously improving while maintaining high standards and clear communication throughout the development process.

@@ -1,0 +1,204 @@
+{
+    "version": "1.0.0",
+    "models": {
+        "claude-3-5-sonnet-20241022": {
+            "name": "Claude 3.5 Sonnet",
+            "tier": "high",
+            "context_window": 200000,
+            "max_tokens": 8192,
+            "input_pricing": "$3.00 per million tokens",
+            "output_pricing": "$15.00 per million tokens",
+            "capabilities": [
+                "complex_reasoning",
+                "code_generation",
+                "analysis",
+                "creative_writing"
+            ],
+            "strengths": [
+                "coding",
+                "math",
+                "analysis",
+                "following_instructions"
+            ],
+            "use_cases": [
+                "software_development",
+                "data_analysis",
+                "technical_writing",
+                "problem_solving"
+            ]
+        },
+        "claude-3-haiku-20240307": {
+            "name": "Claude 3 Haiku",
+            "tier": "medium",
+            "context_window": 200000,
+            "max_tokens": 4096,
+            "input_pricing": "$0.25 per million tokens",
+            "output_pricing": "$1.25 per million tokens",
+            "capabilities": [
+                "fast_responses",
+                "cost_effective",
+                "general_purpose"
+            ],
+            "strengths": [
+                "speed",
+                "efficiency",
+                "general_knowledge"
+            ],
+            "use_cases": [
+                "quick_tasks",
+                "general_queries",
+                "drafting",
+                "summarization"
+            ]
+        },
+        "gpt-4o": {
+            "name": "GPT-4o",
+            "tier": "high",
+            "context_window": 128000,
+            "max_tokens": 16384,
+            "input_pricing": "$2.50 per million tokens",
+            "output_pricing": "$10.00 per million tokens",
+            "capabilities": [
+                "vision",
+                "multimodal",
+                "creative",
+                "coding"
+            ],
+            "strengths": [
+                "image_understanding",
+                "creative_tasks",
+                "coding",
+                "conversation"
+            ],
+            "use_cases": [
+                "ui_design",
+                "content_creation",
+                "image_analysis",
+                "creative_writing"
+            ]
+        },
+        "gpt-4o-mini": {
+            "name": "GPT-4o Mini",
+            "tier": "medium",
+            "context_window": 128000,
+            "max_tokens": 16384,
+            "input_pricing": "$0.15 per million tokens",
+            "output_pricing": "$0.60 per million tokens",
+            "capabilities": [
+                "cost_effective",
+                "fast",
+                "general_purpose"
+            ],
+            "strengths": [
+                "efficiency",
+                "speed",
+                "general_knowledge"
+            ],
+            "use_cases": [
+                "quick_tasks",
+                "drafting",
+                "analysis",
+                "general_queries"
+            ]
+        }
+    },
+    "model_assignments": {
+        "default": "claude-3-5-sonnet-20241022",
+        "high_complexity": "claude-3-5-sonnet-20241022",
+        "research": "claude-3-5-sonnet-20241022",
+        "creative": "gpt-4o",
+        "cost_effective": "gpt-4o-mini",
+        "fallback": "claude-3-haiku-20240307"
+    },
+    "agent_model_mapping": {
+        "engineering": {
+            "ai-engineer": "claude-3-5-sonnet-20241022",
+            "backend-architect": "claude-3-5-sonnet-20241022",
+            "devops-automator": "claude-3-5-sonnet-20241022",
+            "frontend-developer": "claude-3-5-sonnet-20241022",
+            "mobile-app-builder": "claude-3-5-sonnet-20241022",
+            "rapid-prototyper": "claude-3-5-sonnet-20241022",
+            "test-writer-fixer": "claude-3-5-sonnet-20241022"
+        },
+        "design": {
+            "brand-guardian": "gpt-4o",
+            "ui-designer": "gpt-4o",
+            "ux-researcher": "claude-3-5-sonnet-20241022",
+            "visual-storyteller": "gpt-4o",
+            "whimsy-injector": "gpt-4o"
+        },
+        "marketing": {
+            "app-store-optimizer": "claude-3-5-sonnet-20241022",
+            "content-creator": "claude-3-5-sonnet-20241022",
+            "growth-hacker": "claude-3-5-sonnet-20241022",
+            "instagram-curator": "gpt-4o",
+            "reddit-community-builder": "claude-3-5-sonnet-20241022",
+            "tiktok-strategist": "gpt-4o",
+            "twitter-engager": "claude-3-5-sonnet-20241022"
+        },
+        "product": {
+            "feedback-synthesizer": "claude-3-5-sonnet-20241022",
+            "sprint-prioritizer": "claude-3-5-sonnet-20241022",
+            "trend-researcher": "claude-3-5-sonnet-20241022"
+        },
+        "projectManagement": {
+            "experiment-tracker": "claude-3-5-sonnet-20241022",
+            "project-shipper": "claude-3-5-sonnet-20241022",
+            "studio-producer": "claude-3-5-sonnet-20241022"
+        },
+        "studioOperations": {
+            "analytics-reporter": "claude-3-5-sonnet-20241022",
+            "finance-tracker": "claude-3-5-sonnet-20241022",
+            "infrastructure-maintainer": "claude-3-5-sonnet-20241022",
+            "legal-compliance-checker": "claude-3-5-sonnet-20241022",
+            "support-responder": "claude-3-5-sonnet-20241022"
+        },
+        "testing": {
+            "api-tester": "claude-3-5-sonnet-20241022",
+            "performance-benchmarker": "claude-3-5-sonnet-20241022",
+            "test-results-analyzer": "claude-3-5-sonnet-20241022",
+            "tool-evaluator": "claude-3-5-sonnet-20241022",
+            "workflow-optimizer": "claude-3-5-sonnet-20241022"
+        },
+        "bonus": {
+            "joker": "gpt-4o-mini",
+            "studio-coach": "claude-3-5-sonnet-20241022"
+        }
+    },
+    "context_management": {
+        "max_files": 50,
+        "max_tokens": 128000,
+        "include_patterns": [
+            "**/*.{js,ts,jsx,tsx,py,md,json}",
+            "**/*.{css,scss,less}",
+            "**/*.{html,htm}",
+            "**/*.{yaml,yml}",
+            ".cursor/**/*"
+        ],
+        "exclude_patterns": [
+            "**/node_modules/**",
+            "**/.git/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.next/**",
+            "**/coverage/**",
+            "**/*.log"
+        ]
+    },
+    "performance_settings": {
+        "temperature": {
+            "creative_tasks": 0.8,
+            "coding_tasks": 0.2,
+            "analysis_tasks": 0.3,
+            "default": 0.5
+        },
+        "top_p": {
+            "creative_tasks": 0.9,
+            "coding_tasks": 0.7,
+            "analysis_tasks": 0.8,
+            "default": 0.8
+        },
+        "frequency_penalty": 0.1,
+        "presence_penalty": 0.1
+    }
+}

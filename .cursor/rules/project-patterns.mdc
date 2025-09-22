@@ -1,0 +1,487 @@
+---
+description: Project-specific patterns and conventions based on Go Clean Architecture and PHP CodeIgniter patterns from our project boilerplates
+globs: **/*.{go,php}
+alwaysApply: true
+---
+
+# Project Patterns & Conventions
+
+These rules define the architectural patterns, coding conventions, and best practices used across our Go and PHP projects based on the established boilerplates.
+
+## 🏗️ Architecture Patterns
+
+### Go Projects (Clean Architecture)
+
+#### **1. Project Structure**
+
+```
+myapp/
+├── cmd/                    # Application entry points
+│   ├── main.go
+│   └── config/
+├── internal/              # Private application code
+│   ├── app/               # Application-specific code
+│   ├── controller/        # HTTP handlers
+│   ├── service/           # Business logic
+│   ├── repository/        # Data access layer
+│   ├── entity/            # Business entities
+│   ├── model/             # API models
+│   ├── converter/         # Data transformation
+│   ├── routes/            # Routing configuration
+│   └── util/              # Utility packages
+├── api/                   # API definitions
+├── scripts/               # Build and deployment scripts
+└── tests/                 # Test files
+```
+
+#### **2. Layered Architecture**
+
+- **Controllers**: Handle HTTP requests, validation, and responses
+- **Services**: Contain business logic and orchestrate repositories
+- **Repositories**: Handle data access and persistence
+- **Entities**: Core business models with domain logic
+- **Utilities**: Reusable helper functions and common operations
+
+#### **3. Dependency Injection Pattern**
+
+```go
+// ✅ Preferred: Constructor injection
+type UserService struct {
+    userRepo   repository.UserRepository
+    cache      cache.RedisCache
+    validator  *validator.Validate
+}
+
+func NewUserService(
+    userRepo repository.UserRepository,
+    cache cache.RedisCache,
+    validator *validator.Validate,
+) UserService {
+    return &UserService{
+        userRepo:  userRepo,
+        cache:     cache,
+        validator: validator,
+    }
+}
+```
+
+### PHP Projects (CodeIgniter MVC)
+
+#### **1. Project Structure**
+
+```
+PROJECT_NAME/
+├── application/           # Main application code
+│   ├── controllers/       # MVC controllers
+│   ├── models/            # Data models
+│   ├── views/             # View templates
+│   ├── helpers/           # Helper functions
+│   ├── libraries/         # Custom libraries
+│   ├── config/            # Configuration files
+│   └── core/              # Core classes
+├── assets/                # CSS, JS, images
+├── system/                # CodeIgniter framework
+└── vendor/                # Composer dependencies
+```
+
+#### **2. MVC Architecture**
+
+- **Controllers**: Handle requests, load models, render views
+- **Models**: Handle data operations and business logic
+- **Views**: Present data to users with HTML templates
+- **Helpers**: Provide utility functions
+- **Libraries**: Contain reusable classes
+
+#### **3. Base Controller Pattern**
+
+```php
+<?php
+class MY_Controller extends CI_Controller {
+    public function __construct() {
+        parent::__construct();
+        $this->load->model(['user_model', 'app_model']);
+        $this->load->helper(['form', 'url', 'validation']);
+        $this->load->library(['form_validation', 'session']);
+
+        $this->set_security_headers();
+        $this->enhance_session_security();
+    }
+
+    // Common methods for all controllers
+    public function validateAccess(&$data) { /* ... */ }
+    public function send_output($data, $type = "json") { /* ... */ }
+    public function generate_notif($type, $message) { /* ... */ }
+}
+```
+
+## 🔧 Implementation Patterns
+
+### **1. Error Handling**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Proper error wrapping and context
+func (s *userService) CreateUser(ctx context.Context, req api.CreateUserRequest) error {
+    if err := s.validator.Struct(req); err != nil {
+        s.logger.Error(ctx, "Validation failed:", err)
+        return exception.NewValidationError(err.Error())
+    }
+
+    // Business logic with error handling
+    if err := s.userRepo.CreateUser(ctx, entity); err != nil {
+        s.logger.Error(ctx, "User creation failed:", err)
+        return exception.TranslatePostgresError(ctx, err)
+    }
+
+    return nil
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter error handling
+public function create_user() {
+    $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+
+    if ($this->form_validation->run() == FALSE) {
+        $this->session->set_flashdata('error', validation_errors());
+        redirect('user/add');
+        return;
+    }
+
+    // Database operation with error checking
+    if (!$this->user_model->create_user($data)) {
+        $this->session->set_flashdata('error', 'Failed to create user');
+        redirect('user/add');
+        return;
+    }
+
+    $this->session->set_flashdata('success', 'User created successfully');
+    redirect('user');
+}
+```
+
+### **2. Database Operations**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Repository pattern with query builder
+func (r *userRepository) FindAllUsers(ctx context.Context, q database.Q) ([]entity.User, error) {
+    qb := querybuilder.NewBuilder(`SELECT * FROM users`)
+        .Where(`status = ?`, 1)
+        .OrderBy(`created_date`, `DESC`)
+        .Limit(10)
+
+    rows, err := q.QueryContext(ctx, qb.Build(), qb.Values()...)
+    if err != nil {
+        return nil, exception.TranslatePostgresError(ctx, err)
+    }
+    defer rows.Close()
+
+    var users []entity.User
+    for rows.Next() {
+        var user entity.User
+        if err := rows.Scan(&user.ID, &user.FullName, /* ... */); err != nil {
+            return nil, exception.TranslatePostgresError(ctx, err)
+        }
+        users = append(users, user)
+    }
+
+    return users, nil
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter query builder
+public function get_all_users($limit = 10, $offset = 0) {
+    $this->db->select('*');
+    $this->db->from('users');
+    $this->db->where('status', 1);
+    $this->db->order_by('created_date', 'DESC');
+    $this->db->limit($limit, $offset);
+
+    $query = $this->db->get();
+    return $query->result();
+}
+
+public function get_user_by_id($id) {
+    $this->db->where('id', $id);
+    $query = $this->db->get('users');
+    return $query->first_row();
+}
+```
+
+### **3. Authentication & Security**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: JWT middleware with security headers
+func JWTAuth() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        authHeader := c.GetHeader("Authorization")
+        if authHeader == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "success": false,
+                "message": "Authorization header required",
+                "error_code": exceptioncode.CodeUnauthorized,
+            })
+            c.Abort()
+            return
+        }
+
+        token := strings.TrimPrefix(authHeader, "Bearer ")
+        payload, err := authentication.VerifyToken(token)
+        if err != nil {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "success": false,
+                "message": "Invalid or expired token",
+            })
+            c.Abort()
+            return
+        }
+
+        c.Set("user", payload)
+        c.Next()
+    }
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: Session-based auth with security headers
+private function set_security_headers() {
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+}
+
+private function enhance_session_security() {
+    if ($this->session && method_exists($this->session, 'userdata')) {
+        if (!$this->session->userdata('last_regenerate') ||
+            time() - $this->session->userdata('last_regenerate') > 300) {
+            $this->session->sess_regenerate(TRUE);
+            $this->session->set_userdata('last_regenerate', time());
+        }
+    }
+}
+```
+
+### **4. Validation**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Struct validation with custom tags
+type CreateUserRequest struct {
+    FullName string `json:"full_name" validate:"required,min=2,max=100"`
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required,min=8"`
+    Phone    string `json:"phone,omitempty" validate:"omitempty,len=10"`
+}
+
+func (s *userService) CreateUser(ctx context.Context, req api.CreateUserRequest) error {
+    if err := s.validator.Struct(req); err != nil {
+        s.logger.Error(ctx, "Validation failed:", err)
+        return exception.NewValidationError(err.Error())
+    }
+    // Continue with business logic...
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter form validation
+public function create_user() {
+    $this->form_validation->set_rules('full_name', 'Full Name', 'required|min_length[2]|max_length[100]');
+    $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+    $this->form_validation->set_rules('password', 'Password', 'required|min_length[8]');
+    $this->form_validation->set_rules('phone', 'Phone', 'exact_length[10]');
+
+    if ($this->form_validation->run() == FALSE) {
+        $this->session->set_flashdata('error', validation_errors());
+        redirect('user/add');
+        return;
+    }
+
+    // Continue with business logic...
+}
+```
+
+### **5. Caching Strategy**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Redis caching with TTL
+func (s *userService) FindAllUsers(ctx context.Context, req api.FindAllUsersRequest) (api.FindAllUsersResponse, error) {
+    cacheKey := fmt.Sprintf("users:%s:%s", req.ProjectKey, req.Host)
+
+    var users []entity.User
+    err := s.redisCache.Get(ctx, cacheKey, &users)
+
+    if err != nil || len(users) == 0 {
+        // Get from database
+        users, err = s.userRepository.FindAllUsers(ctx, s.db)
+        if err != nil {
+            return api.FindAllUsersResponse{}, err
+        }
+
+        // Cache the result
+        if err := s.redisCache.Set(ctx, cacheKey, users, 30*time.Minute); err != nil {
+            s.logger.Warn(ctx, "Failed to cache users:", err)
+        }
+    }
+
+    return converter.ToUserList(ctx, users), nil
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter caching
+public function get_cached_data($key, $ttl = 300) {
+    $this->load->driver('cache', ['adapter' => 'file']);
+
+    if (!$data = $this->cache->get($key)) {
+        // Get fresh data
+        $data = $this->some_model->get_data();
+
+        // Cache the result
+        $this->cache->save($key, $data, $ttl);
+    }
+
+    return $data;
+}
+
+public function clear_cache($key) {
+    $this->load->driver('cache');
+    $this->cache->delete($key);
+}
+```
+
+### **6. Logging**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Structured logging with context
+func (s *userService) CreateUser(ctx context.Context, req api.CreateUserRequest) error {
+    s.logger.Info(ctx, "Creating user", "email", req.Email)
+
+    if err := s.validator.Struct(req); err != nil {
+        s.logger.Error(ctx, "Validation failed", "error", err, "email", req.Email)
+        return exception.NewValidationError(err.Error())
+    }
+
+    // Business logic...
+    s.logger.Info(ctx, "User created successfully", "userID", user.ID)
+    return nil
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter logging
+public function create_user() {
+    log_message('info', 'Starting user creation process');
+
+    // Validation...
+    if ($this->form_validation->run() == FALSE) {
+        log_message('error', 'User validation failed: ' . validation_errors());
+        $this->session->set_flashdata('error', validation_errors());
+        redirect('user/add');
+        return;
+    }
+
+    // Business logic...
+    log_message('info', 'User created successfully: ' . $user_id);
+
+    $this->session->set_flashdata('success', 'User created successfully');
+    redirect('user');
+}
+```
+
+## 📁 File Organization
+
+### **Go Projects**
+
+- `internal/controller/` - HTTP request handlers
+- `internal/service/` - Business logic layer
+- `internal/repository/` - Data access layer
+- `internal/entity/` - Domain entities
+- `internal/model/api/` - Request/response models
+- `internal/util/` - Utility packages (organized by functionality)
+
+### **PHP Projects**
+
+- `application/controllers/` - MVC controllers
+- `application/models/` - Data models
+- `application/views/` - View templates
+- `application/helpers/` - Helper functions
+- `application/libraries/` - Custom libraries
+- `application/config/` - Configuration files
+
+## 🛠️ Utility Functions
+
+### **Go Utility Packages**
+
+- `internal/util/authentication/` - JWT and auth utilities
+- `internal/util/cache/` - Redis caching operations
+- `internal/util/common/` - Common helper functions
+- `internal/util/constants/` - Application constants
+- `internal/util/date/` - Date/time utilities
+- `internal/util/exception/` - Error handling
+- `internal/util/httphelper/` - HTTP utilities
+- `internal/util/logger/` - Logging utilities
+- `internal/util/validator/` - Input validation
+
+### **PHP Helper Functions**
+
+- `application/helpers/common_helper.php` - Common utilities
+- `application/helpers/button_helper.php` - UI button generators
+- `application/helpers/validation_helper.php` - Validation functions
+- `application/helpers/debug_helper.php` - Debug utilities
+
+## 🔒 Security Standards
+
+### **Common Security Measures**
+
+1. **Input Validation**: Validate all user inputs
+2. **SQL Injection Prevention**: Use parameterized queries
+3. **XSS Protection**: Sanitize outputs and use security headers
+4. **CSRF Protection**: Implement CSRF tokens
+5. **Session Security**: Secure session management
+6. **Authentication**: Proper auth mechanisms
+7. **Authorization**: Role-based access control
+8. **Error Handling**: Don't expose sensitive information
+
+### **Go Security Features**
+
+- JWT authentication middleware
+- Security headers middleware
+- IP whitelisting
+- Rate limiting
+- Input validation
+- SQL injection prevention via query builders
+
+### **PHP Security Features**
+
+- Security headers in base controller
+- Session security enhancements
+- Form validation
+- XSS protection
+- CSRF protection
+- Input sanitization
+
+These patterns ensure consistent, secure, and maintainable code across all our projects, following established best practices for both Go and PHP development.

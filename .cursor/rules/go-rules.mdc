@@ -1,0 +1,760 @@
+---
+description: Go programming language best practices, conventions, and standards for high-performance, maintainable code (Go 1.23+)
+globs: **/*.go
+alwaysApply: true
+---
+
+# Go Language Rules
+
+Comprehensive Go programming standards and best practices for writing idiomatic, efficient, and maintainable Go code. These rules ensure consistency with Go's philosophy of simplicity, readability, and performance, following the latest Go 1.23+ standards and official guidelines.
+
+## 🎯 Core Go Philosophy
+
+### **Simplicity First**
+
+- Write code that is simple to understand and maintain
+- Avoid unnecessary complexity and over-engineering
+- Follow the principle of "clear is better than clever"
+
+### **Performance by Design**
+
+- Design for performance from the start
+- Use Go's built-in profiling tools
+- Optimize for both speed and memory usage
+
+### **Readability Matters**
+
+- Write self-documenting code
+- Use descriptive names
+- Keep functions small and focused
+
+## 📋 Code Organization
+
+### **Package Structure**
+
+```go
+// ✅ Good: Clear package organization
+myapp/
+├── cmd/
+│   └── server/
+├── internal/
+│   ├── handlers/
+│   ├── models/
+│   └── services/
+├── pkg/
+│   └── utils/
+└── configs/
+```
+
+### **Go Workspaces (Go 1.18+)**
+
+For multi-module projects, use Go workspaces:
+
+```go
+// go.work
+go 1.23
+
+use (
+    ./myapp
+    ./shared-libs
+    ./tools
+)
+
+// Initialize workspace
+go work init ./myapp ./shared-libs ./tools
+
+// Use workspace
+go work use ./new-module
+```
+
+### **File Organization**
+
+- One package per directory
+- Group related functionality together
+- Separate concerns clearly
+- Use Go workspaces for multi-module projects (Go 1.18+)
+- Follow standard Go project layout conventions
+
+### **Import Organization**
+
+```go
+// Standard library imports first
+import (
+    "context"
+    "encoding/json"
+    "fmt"
+    "net/http"
+    "time"
+
+    // Third-party imports
+    "github.com/gorilla/mux"
+    "github.com/sirupsen/logrus"
+
+    // Internal imports last
+    "myapp/internal/models"
+    "myapp/internal/services"
+    "myapp/pkg/utils"
+)
+```
+
+### **Go Modules Best Practices (Go 1.23+)**
+
+```go
+// go.mod
+module myapp
+go 1.23
+
+require (
+    github.com/gorilla/mux v1.8.0
+    github.com/sirupsen/logrus v1.9.0
+)
+
+// Check for updates
+go list -m -u all
+
+// Update dependencies
+go get -u ./...
+
+// Tidy module dependencies
+go mod tidy
+
+// Vendor dependencies (when needed)
+go mod vendor
+
+// Download dependencies
+go mod download
+```
+
+## 🏗️ Naming Conventions
+
+### **Variables and Constants**
+
+```go
+// ✅ Good: Descriptive names
+var userCount int
+const maxRetries = 3
+var httpClient *http.Client
+
+// ❌ Avoid: Generic names
+var x int
+var data []byte
+var temp string
+```
+
+### **Functions and Methods**
+
+```go
+// ✅ Good: Clear, descriptive names
+func (u *UserService) CreateUser(ctx context.Context, req *CreateUserRequest) (*User, error)
+func CalculateTotalPrice(items []Item) (float64, error)
+func SendWelcomeEmail(user User) error
+
+// ❌ Avoid: Generic names
+func Do(x int) int
+func Process(data []byte) error
+func Handle() error
+```
+
+### **Types and Interfaces**
+
+```go
+// ✅ Good: Clear type names
+type UserRepository interface {
+    Create(ctx context.Context, user *User) error
+    GetByID(ctx context.Context, id string) (*User, error)
+}
+
+type CreateUserRequest struct {
+    Email    string `json:"email"`
+    Password string `json:"password"`
+    Name     string `json:"name"`
+}
+
+// ❌ Avoid: Generic type names
+type Data struct{}
+type Handler interface{}
+type Request struct{}
+```
+
+### **Package Names**
+
+```go
+// ✅ Good: Lowercase, concise names
+package models
+package services
+package handlers
+package utils
+
+// ❌ Avoid: Generic or uppercase names
+package Data
+package Common
+package Helper
+```
+
+## 🔧 Function Design
+
+### **Function Length**
+
+- Keep functions under 20-30 lines when possible
+- Break large functions into smaller, focused functions
+- Each function should have a single responsibility
+
+### **Error Handling**
+
+```go
+// ✅ Good: Proper error handling
+func (s *UserService) CreateUser(ctx context.Context, req *CreateUserRequest) (*User, error) {
+    if err := req.Validate(); err != nil {
+        return nil, fmt.Errorf("invalid request: %w", err)
+    }
+
+    user, err := s.repo.Create(ctx, req)
+    if err != nil {
+        return nil, fmt.Errorf("failed to create user: %w", err)
+    }
+
+    return user, nil
+}
+
+// ❌ Avoid: Ignoring errors
+func createUser(req *CreateUserRequest) *User {
+    // Missing error handling
+}
+```
+
+### **Context Usage**
+
+```go
+// ✅ Good: Always use context for timeouts and cancellation
+func (s *UserService) GetUser(ctx context.Context, id string) (*User, error) {
+    ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+    defer cancel()
+
+    return s.repo.GetByID(ctx, id)
+}
+```
+
+## 🏗️ Struct and Interface Design
+
+### **Struct Tags**
+
+```go
+// ✅ Good: Consistent struct tags
+type User struct {
+    ID        string    `json:"id" db:"id"`
+    Email     string    `json:"email" db:"email" validate:"required,email"`
+    Name      string    `json:"name" db:"name" validate:"required,min=2"`
+    CreatedAt time.Time `json:"created_at" db:"created_at"`
+    UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+}
+```
+
+### **Interface Design**
+
+```go
+// ✅ Good: Small, focused interfaces
+type UserRepository interface {
+    Create(ctx context.Context, user *User) error
+    GetByID(ctx context.Context, id string) (*User, error)
+    GetByEmail(ctx context.Context, email string) (*User, error)
+    Update(ctx context.Context, user *User) error
+    Delete(ctx context.Context, id string) error
+}
+
+// ❌ Avoid: Large, unfocused interfaces
+type Repository interface {
+    Create(ctx context.Context, data interface{}) error
+    Read(ctx context.Context, id interface{}) (interface{}, error)
+    // ... many more methods
+}
+```
+
+### **Constructor Functions**
+
+```go
+// ✅ Good: Constructor functions
+func NewUserService(repo UserRepository, logger *logrus.Logger) *UserService {
+    return &UserService{
+        repo:   repo,
+        logger: logger,
+    }
+}
+
+// ❌ Avoid: Direct struct initialization
+userService := &UserService{
+    // Direct initialization makes testing harder
+}
+```
+
+## 🧪 Testing Standards
+
+### **Table-Driven Tests**
+
+```go
+// ✅ Good: Table-driven tests
+func TestCalculateTotalPrice(t *testing.T) {
+    tests := []struct {
+        name     string
+        items    []Item
+        expected float64
+        wantErr  bool
+    }{
+        {
+            name:     "empty cart",
+            items:    []Item{},
+            expected: 0,
+            wantErr:  false,
+        },
+        {
+            name: "single item",
+            items: []Item{
+                {Name: "Book", Price: 10.0},
+            },
+            expected: 10.0,
+            wantErr:  false,
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            got, err := CalculateTotalPrice(tt.items)
+            if tt.wantErr {
+                require.Error(t, err)
+                return
+            }
+            require.NoError(t, err)
+            require.Equal(t, tt.expected, got)
+        })
+    }
+}
+```
+
+### **Test File Organization**
+
+```go
+// user_service_test.go
+func TestUserService_CreateUser(t *testing.T) {}
+func TestUserService_GetUser(t *testing.T) {}
+func TestUserService_UpdateUser(t *testing.T) {}
+func TestUserService_DeleteUser(t *testing.T) {}
+```
+
+### **Benchmark Tests**
+
+```go
+// ✅ Good: Benchmark tests (Go 1.23+)
+func BenchmarkUserService_CreateUser(b *testing.B) {
+    service := NewUserService(mockRepo, logrus.New())
+    req := &CreateUserRequest{
+        Email: "test@example.com",
+        Name:  "Test User",
+    }
+
+    b.ResetTimer()
+    for i := 0; i < b.N; i++ {
+        _, err := service.CreateUser(context.Background(), req)
+        if err != nil {
+            b.Fatal(err)
+        }
+    }
+}
+
+// ✅ Good: Memory profiling benchmarks
+func BenchmarkUserService_CreateUserMemory(b *testing.B) {
+    service := NewUserService(mockRepo, logrus.New())
+    req := &CreateUserRequest{
+        Email: "test@example.com",
+        Name:  "Test User",
+    }
+
+    b.ResetTimer()
+    b.ReportAllocs() // Report memory allocations
+    for i := 0; i < b.N; i++ {
+        _, err := service.CreateUser(context.Background(), req)
+        if err != nil {
+            b.Fatal(err)
+        }
+    }
+}
+```
+
+## ⚡ Performance Best Practices
+
+### **Memory Management**
+
+```go
+// ✅ Good: Reuse objects to reduce GC pressure
+func (s *UserService) GetUsers(ctx context.Context) ([]*User, error) {
+    users := make([]*User, 0, s.defaultCapacity)
+
+    // Use object pooling for frequently created objects
+    buf := s.bufferPool.Get().(*bytes.Buffer)
+    defer s.bufferPool.Put(buf)
+    buf.Reset()
+}
+```
+
+### **Goroutine Management**
+
+```go
+// ✅ Good: Proper goroutine management
+func (s *UserService) ProcessUsers(ctx context.Context) error {
+    ctx, cancel := context.WithCancel(ctx)
+    defer cancel()
+
+    errChan := make(chan error, 1)
+    resultChan := make(chan []*User, 1)
+
+    go func() {
+        defer close(errChan)
+        defer close(resultChan)
+
+        users, err := s.fetchUsers(ctx)
+        if err != nil {
+            errChan <- err
+            return
+        }
+        resultChan <- users
+    }()
+
+    select {
+    case err := <-errChan:
+        return err
+    case users := <-resultChan:
+        return s.processUsers(ctx, users)
+    case <-ctx.Done():
+        return ctx.Err()
+    }
+}
+```
+
+### **Database Optimization**
+
+```go
+// ✅ Good: Efficient database queries
+func (r *UserRepository) GetUsersByStatus(ctx context.Context, status string) ([]*User, error) {
+    query := `
+        SELECT id, email, name, created_at, updated_at
+        FROM users
+        WHERE status = $1
+        ORDER BY created_at DESC
+        LIMIT $2
+    `
+
+    rows, err := r.db.QueryContext(ctx, query, status, 100)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var users []*User
+    for rows.Next() {
+        var u User
+        err := rows.Scan(&u.ID, &u.Email, &u.Name, &u.CreatedAt, &u.UpdatedAt)
+        if err != nil {
+            return nil, err
+        }
+        users = append(users, &u)
+    }
+
+    return users, rows.Err()
+}
+```
+
+## 🔒 Security Best Practices
+
+### **Input Validation**
+
+```go
+// ✅ Good: Proper input validation
+func (s *UserService) CreateUser(ctx context.Context, req *CreateUserRequest) (*User, error) {
+    if err := req.Validate(); err != nil {
+        return nil, fmt.Errorf("invalid request: %w", err)
+    }
+
+    // Additional validation
+    if len(req.Password) < 8 {
+        return nil, errors.New("password must be at least 8 characters")
+    }
+
+    if !isValidEmail(req.Email) {
+        return nil, errors.New("invalid email format")
+    }
+
+    return s.repo.Create(ctx, req)
+}
+```
+
+### **SQL Injection Prevention**
+
+```go
+// ✅ Good: Parameterized queries only
+func (r *UserRepository) GetUserByEmail(ctx context.Context, email string) (*User, error) {
+    query := `SELECT id, email, name FROM users WHERE email = $1`
+
+    var user User
+    err := r.db.QueryRowContext(ctx, query, email).Scan(
+        &user.ID, &user.Email, &user.Name,
+    )
+    if err != nil {
+        if err == sql.ErrNoRows {
+            return nil, ErrUserNotFound
+        }
+        return nil, err
+    }
+
+    return &user, nil
+}
+```
+
+### **Authentication & Authorization**
+
+```go
+// ✅ Good: Proper auth middleware
+func AuthMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        token := r.Header.Get("Authorization")
+        if token == "" {
+            http.Error(w, "Authorization header required", http.StatusUnauthorized)
+            return
+        }
+
+        claims, err := validateJWT(token)
+        if err != nil {
+            http.Error(w, "Invalid token", http.StatusUnauthorized)
+            return
+        }
+
+        ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}
+```
+
+## 📚 Documentation Standards
+
+### **Package Documentation**
+
+```go
+// Package models provides data structures and validation for the application.
+// This package contains all the core business models and their associated
+// validation logic.
+package models
+```
+
+### **Function Documentation**
+
+```go
+// CreateUser creates a new user in the system with the provided information.
+// The password is hashed before storage. Returns the created user or an error.
+//
+// Context is used for timeout and cancellation. The request is validated
+// before processing.
+//
+// Example:
+//   req := &CreateUserRequest{
+//       Email: "user@example.com",
+//       Name: "John Doe",
+//       Password: "securepassword123",
+//   }
+//   user, err := service.CreateUser(ctx, req)
+func (s *UserService) CreateUser(ctx context.Context, req *CreateUserRequest) (*User, error)
+```
+
+### **Type Documentation**
+
+```go
+// UserRepository defines the interface for user data access operations.
+// Implementations should handle database connections, transactions,
+// and error handling appropriately.
+type UserRepository interface {
+    // Create stores a new user in the persistent storage.
+    // Returns an error if the user already exists or validation fails.
+    Create(ctx context.Context, user *User) error
+
+    // GetByID retrieves a user by their unique identifier.
+    // Returns ErrUserNotFound if no user exists with the given ID.
+    GetByID(ctx context.Context, id string) (*User, error)
+
+    // Update modifies an existing user's information.
+    // Only provided fields are updated.
+    Update(ctx context.Context, user *User) error
+
+    // Delete removes a user from the system.
+    Delete(ctx context.Context, id string) error
+}
+```
+
+## 🛠️ Tool Usage Guidelines
+
+### **Go Tools Integration (Go 1.23+)**
+
+- Use `go fmt` for consistent formatting
+- Use `go vet` for static analysis
+- Use `go mod tidy` for dependency management
+- Use `golangci-lint` for comprehensive linting
+- Use `go test -race` for race condition detection
+- Use `govulncheck` for security vulnerability scanning
+- Use `go build -buildmode=plugin` for plugin support
+- Use `go mod edit` for module file manipulation
+
+### **Development Workflow**
+
+```bash
+# Format code
+go fmt ./...
+
+# Run linter with latest standards
+golangci-lint run
+
+# Run tests with coverage
+go test -coverprofile=coverage.out ./...
+
+# Check for race conditions
+go test -race ./...
+
+# Run benchmarks
+go test -bench=. ./...
+
+# Build for production (Go 1.23+ optimized)
+go build -ldflags="-s -w" ./cmd/server
+
+# Run security vulnerability check
+govulncheck ./...
+```
+
+## 📊 Code Quality Metrics
+
+### **Target Metrics**
+
+- **Test Coverage**: ≥ 80%
+- **Cyclomatic Complexity**: ≤ 10 per function
+- **Function Length**: ≤ 30 lines
+- **Package Dependencies**: Keep minimal and explicit
+- **Memory Allocations**: Minimize in hot paths
+
+### **Continuous Integration**
+
+```yaml
+# .github/workflows/ci.yml
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '1.23'
+        cache: true
+    - run: go mod download
+    - run: go test -race -coverprofile=coverage.out ./...
+    - run: go vet ./...
+    - uses: codecov/codecov-action@v4
+```
+
+## 🚨 Common Pitfalls to Avoid
+
+### **Error Handling Mistakes**
+
+- Don't ignore returned errors
+- Don't use `panic` for normal error conditions
+- Wrap errors with context information
+- Use custom error types for different error conditions
+
+### **Concurrency Issues**
+
+- Don't access maps from multiple goroutines without synchronization
+- Don't close channels multiple times
+- Don't forget to handle context cancellation
+- Use `sync.WaitGroup` properly for goroutine coordination
+
+### **Performance Issues**
+
+- Don't create slices with large initial capacity unnecessarily
+- Don't use `fmt.Sprintf` in hot paths
+- Don't create new objects in tight loops
+- Use `sync.Pool` for frequently allocated objects
+
+### **Code Organization Issues**
+
+- Don't put everything in the `main` package
+- Don't create circular import dependencies
+- Don't mix concerns in the same package
+- Don't use package names that conflict with standard library
+
+## 🎯 Best Practices Summary
+
+1. **Keep it simple** - Write clear, readable code
+2. **Handle errors properly** - Never ignore errors
+3. **Use interfaces** - Program to interfaces, not concrete types
+4. **Test thoroughly** - Write comprehensive tests
+5. **Document well** - Document all exported functions and types
+6. **Be concurrent-safe** - Design for concurrent access
+7. **Profile and optimize** - Use Go's profiling tools
+8. **Follow conventions** - Use standard Go idioms and patterns
+9. **Keep dependencies minimal** - Only add necessary dependencies
+10. **Use context** - Pass context for timeouts and cancellation
+
+## 🆕 Go 1.23+ Features & Improvements
+
+### **Enhanced Tooling**
+
+- **govulncheck**: Built-in security vulnerability scanning
+- **go mod edit**: Improved module editing capabilities
+- **go work**: Enhanced workspace support for multi-module projects
+- **go test -bench**: Improved benchmarking with memory profiling
+
+### **Performance Improvements**
+
+- **PGO (Profile-Guided Optimization)**: Runtime performance optimization
+- **Improved GC**: Better garbage collection performance
+- **Enhanced compiler optimizations**: Faster compilation and smaller binaries
+- **Better loop optimization**: More efficient range loops
+
+### **New Language Features**
+
+```go
+// Enhanced for loops (Go 1.22+)
+for i, x := range slice {
+    // Loop variable i and x are per-iteration now
+    go func() {
+        fmt.Println(i, x) // Now works as expected
+    }()
+}
+
+// Clear function for map clearing (Go 1.21+)
+clear(mymap) // More efficient than deleting all keys
+
+// Min/Max functions (Go 1.21+)
+min(a, b, c) // Returns smallest value
+max(a, b, c) // Returns largest value
+
+// Slices package improvements (Go 1.21+)
+slices.Contains(slice, value)    // Check if slice contains value
+slices.Index(slice, value)       // Find index of value
+slices.Delete(slice, i, j)       // Delete elements at indices i to j-1
+```
+
+### **Standard Library Enhancements**
+
+- **http.ServeMux** improvements with pattern matching
+- **context.WithTimeout** optimizations
+- **sync.Pool** performance improvements
+- **strings.Builder** enhancements
+- **slices** package with common operations
+- **maps** package with utility functions
+
+### **Development Experience**
+
+- **go build -buildmode=plugin**: Improved plugin support
+- **go mod vendor**: Better vendoring capabilities
+- **go list -m -u**: Check for module updates
+- **go mod graph**: Visualize module dependencies
+
+---
+
+"Go is about composition, interfaces, and simplicity. Keep it simple, make it work, make it beautiful."
+
+These Go rules ensure your code follows idiomatic Go practices, maintains high performance, and remains maintainable over time, leveraging the latest Go 1.23+ features and improvements.

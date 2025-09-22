@@ -1,0 +1,162 @@
+---
+description: Enhanced Memories configuration for improved project context retention and AI learning preferences
+globs: **
+alwaysApply: true
+---
+
+# Enhanced Memories Configuration
+
+This rule enhances Cursor's Memories feature to provide better context retention and AI learning capabilities across all project activities.
+
+## 🎯 Memories Enhancement Guidelines
+
+### **Context Preservation**
+
+- **Project Context**: Maintain awareness of current project structure, technologies, and architectural decisions
+- **Development Patterns**: Remember coding patterns, naming conventions, and architectural choices
+- **Department Workflows**: Retain knowledge of different department processes and collaboration patterns
+- **Task Progress**: Track ongoing tasks, sprint progress, and development milestones
+
+### **AI Learning Preferences**
+
+- **Code Style**: Learn and apply consistent coding styles across Go and PHP projects
+- **Architecture Patterns**: Remember preferred architectural patterns (Clean Architecture, MVC)
+- **Security Standards**: Maintain security best practices and validation patterns
+- **Testing Approaches**: Remember testing strategies and frameworks used
+- **Documentation Style**: Learn preferred documentation formats and completeness levels
+
+### **Multi-Agent Coordination**
+
+- **Agent Specializations**: Remember which agents are best suited for different types of tasks
+- **Workflow Patterns**: Learn optimal sequences for multi-agent collaboration
+- **Communication Styles**: Adapt to preferred communication patterns with different departments
+- **Review Processes**: Remember code review standards and approval workflows
+
+### **Project-Specific Knowledge**
+
+- **Go Projects**: Remember Clean Architecture patterns, dependency injection preferences, and testing approaches
+- **PHP Projects**: Maintain CodeIgniter MVC patterns, helper function usage, and security implementations
+- **Security Standards**: Remember validation patterns, authentication methods, and secure coding practices
+- **Utility Functions**: Learn preferred utility function implementations and naming conventions
+
+## 🔧 Memory Categories to Preserve
+
+### **Technical Decisions**
+
+- Architecture choices (Clean Architecture vs MVC)
+- Framework selections (Gin, GORM, CodeIgniter)
+- Database design patterns
+- Authentication mechanisms
+- Caching strategies
+
+### **Coding Standards**
+
+- Error handling patterns
+- Validation approaches
+- Security implementations
+- Testing methodologies
+- Documentation styles
+
+### **Workflow Preferences**
+
+- Sprint planning approaches
+- Code review processes
+- Deployment strategies
+- Communication patterns
+- Quality assurance methods
+
+### **Project Patterns**
+
+- Directory structures
+- Configuration approaches
+- Environment setup
+- Development toolchains
+- Build processes
+
+## 📝 Memory Enhancement Instructions
+
+### **For Context Preservation**
+
+When working on projects, ensure memories capture:
+
+- Current project technology stack
+- Preferred architectural patterns
+- Security implementation approaches
+- Testing and validation strategies
+- Documentation requirements
+
+### **For AI Learning**
+
+Adapt communication and suggestions based on:
+
+- Preferred coding styles and patterns
+- Security-first vs rapid prototyping approaches
+- Comprehensive vs minimal documentation preferences
+- Testing coverage expectations
+- Performance optimization priorities
+
+### **For Multi-Agent Workflows**
+
+Remember optimal agent combinations for:
+
+- Full-stack development tasks
+- Security implementations
+- Performance optimizations
+- Content creation workflows
+- Design system development
+
+## 🎯 Usage Examples
+
+### **Memory-Enhanced Prompts**
+
+```bash
+# Context-aware development
+"Create a new feature following our established patterns"
+
+# Architecture-specific requests
+"Build this using Clean Architecture principles"
+
+# Security-conscious development
+"Implement this with security best practices"
+
+# Testing-focused development
+"Include comprehensive unit tests for this functionality"
+```
+
+### **Learning from Patterns**
+
+The AI should learn and apply:
+
+- Consistent error handling patterns
+- Security validation approaches
+- Testing strategy preferences
+- Documentation completeness expectations
+- Code organization principles
+
+## 🔄 Memory Management
+
+### **Automatic Learning**
+
+- Learn from successful implementations
+- Remember preferred architectural choices
+- Adapt to coding style preferences
+- Maintain security standards
+- Remember testing approaches
+
+### **Context Updates**
+
+- Update memories when architectural decisions are made
+- Remember new technology integrations
+- Track evolving coding standards
+- Maintain current security practices
+- Update workflow preferences
+
+### **Cleanup Guidelines**
+
+- Remove outdated architectural patterns
+- Update deprecated security practices
+- Refresh technology stack knowledge
+- Maintain current best practices
+- Clean up obsolete workflow patterns
+
+This enhanced memories configuration ensures that Cursor maintains comprehensive context about your development preferences, architectural decisions, and workflow patterns across all project activities.

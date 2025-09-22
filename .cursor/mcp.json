@@ -1,0 +1,336 @@
+{
+    "mcpServers": {
+        "filesystem": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-filesystem",
+                "/Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/agents-cc"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "git": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-git",
+                "--repository",
+                "/Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/agents-cc"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "sqlite": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-sqlite",
+                "--db-path",
+                "/Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/agents-cc/.cursor/database.db"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "github": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-github"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "brave-search": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/server-brave-search"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "task-master": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-task-master-ai",
+                "--project-root",
+                "/Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/agents-cc"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "sequential-thinking": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-sequential-thinking"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        },
+        "memory": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "mcp-memory"
+            ],
+            "disabled": false,
+            "autoApprove": []
+        }
+    },
+    "resourceTemplates": [
+        {
+            "uriTemplate": "file://{baseDir}/**/*.{js,ts,jsx,tsx,py,md,json}",
+            "name": "Project Files",
+            "description": "Access to all project source files and documentation"
+        },
+        {
+            "uriTemplate": "file://{baseDir}/.cursor/rules/**/*.md",
+            "name": "Agent Rules",
+            "description": "Access to all AI agent rules and configurations"
+        },
+        {
+            "uriTemplate": "file://{baseDir}/**/*.{css,scss,less}",
+            "name": "Stylesheets",
+            "description": "Access to all styling files"
+        }
+    ],
+    "toolGroups": {
+        "file-operations": {
+            "description": "File system operations for reading, writing, and searching",
+            "tools": [
+                "filesystem_read_file",
+                "filesystem_write_file",
+                "filesystem_edit_file",
+                "filesystem_list_directory",
+                "filesystem_search_files"
+            ]
+        },
+        "code-analysis": {
+            "description": "Code analysis and modification tools",
+            "tools": [
+                "grep",
+                "glob_file_search",
+                "read_file",
+                "search_replace"
+            ]
+        },
+        "terminal-operations": {
+            "description": "Terminal and command execution tools",
+            "tools": [
+                "run_terminal_cmd"
+            ]
+        },
+        "web-research": {
+            "description": "Web search and research capabilities",
+            "tools": [
+                "brave_web_search",
+                "brave_local_search"
+            ]
+        },
+        "task-management": {
+            "description": "Project and task management tools",
+            "tools": [
+                "task-master_initialize_project",
+                "task-master_parse_prd",
+                "task-master_get_tasks",
+                "task-master_set_task_status"
+            ]
+        },
+        "ai-enhancement": {
+            "description": "AI reasoning and memory tools",
+            "tools": [
+                "sequential_thinking",
+                "memory_create_entities",
+                "memory_search_nodes"
+            ]
+        }
+    },
+    "agentToolMappings": {
+        "engineering": {
+            "ai-engineer": [
+                "file-operations",
+                "code-analysis",
+                "terminal-operations",
+                "ai-enhancement"
+            ],
+            "backend-architect": [
+                "file-operations",
+                "code-analysis",
+                "terminal-operations",
+                "web-research"
+            ],
+            "devops-automator": [
+                "file-operations",
+                "terminal-operations",
+                "web-research",
+                "task-management"
+            ],
+            "frontend-developer": [
+                "file-operations",
+                "code-analysis",
+                "web-research"
+            ],
+            "mobile-app-builder": [
+                "file-operations",
+                "code-analysis",
+                "terminal-operations"
+            ],
+            "rapid-prototyper": [
+                "file-operations",
+                "code-analysis",
+                "ai-enhancement"
+            ],
+            "test-writer-fixer": [
+                "file-operations",
+                "code-analysis",
+                "terminal-operations"
+            ]
+        },
+        "design": {
+            "brand-guardian": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ],
+            "ui-designer": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ],
+            "ux-researcher": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ],
+            "visual-storyteller": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ],
+            "whimsy-injector": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ]
+        },
+        "marketing": {
+            "app-store-optimizer": [
+                "web-research",
+                "ai-enhancement",
+                "task-management"
+            ],
+            "content-creator": [
+                "web-research",
+                "ai-enhancement",
+                "file-operations"
+            ],
+            "growth-hacker": [
+                "web-research",
+                "ai-enhancement",
+                "task-management"
+            ],
+            "instagram-curator": [
+                "web-research",
+                "ai-enhancement"
+            ],
+            "reddit-community-builder": [
+                "web-research",
+                "ai-enhancement"
+            ],
+            "tiktok-strategist": [
+                "web-research",
+                "ai-enhancement"
+            ],
+            "twitter-engager": [
+                "web-research",
+                "ai-enhancement"
+            ]
+        },
+        "product": {
+            "feedback-synthesizer": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ],
+            "sprint-prioritizer": [
+                "task-management",
+                "ai-enhancement"
+            ],
+            "trend-researcher": [
+                "web-research",
+                "ai-enhancement"
+            ]
+        },
+        "projectManagement": {
+            "experiment-tracker": [
+                "task-management",
+                "ai-enhancement"
+            ],
+            "project-shipper": [
+                "task-management",
+                "terminal-operations"
+            ],
+            "studio-producer": [
+                "task-management",
+                "ai-enhancement"
+            ]
+        },
+        "studioOperations": {
+            "analytics-reporter": [
+                "file-operations",
+                "web-research",
+                "ai-enhancement"
+            ],
+            "finance-tracker": [
+                "file-operations",
+                "ai-enhancement"
+            ],
+            "infrastructure-maintainer": [
+                "terminal-operations",
+                "web-research"
+            ],
+            "legal-compliance-checker": [
+                "web-research",
+                "ai-enhancement"
+            ],
+            "support-responder": [
+                "web-research",
+                "ai-enhancement"
+            ]
+        },
+        "testing": {
+            "api-tester": [
+                "terminal-operations",
+                "web-research"
+            ],
+            "performance-benchmarker": [
+                "terminal-operations",
+                "web-research"
+            ],
+            "test-results-analyzer": [
+                "file-operations",
+                "ai-enhancement"
+            ],
+            "tool-evaluator": [
+                "web-research",
+                "ai-enhancement"
+            ],
+            "workflow-optimizer": [
+                "terminal-operations",
+                "ai-enhancement"
+            ]
+        },
+        "bonus": {
+            "joker": [
+                "ai-enhancement"
+            ],
+            "studio-coach": [
+                "task-management",
+                "ai-enhancement"
+            ]
+        }
+    }
+}

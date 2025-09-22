@@ -1,0 +1,836 @@
+---
+description: PHP CodeIgniter MVC patterns for secure, maintainable, and scalable web applications
+globs: **/*.php
+alwaysApply: true
+---
+
+# PHP CodeIgniter Patterns
+
+This rule defines the CodeIgniter MVC patterns used in our PHP projects, ensuring secure, maintainable, and scalable web applications.
+
+## 🏗️ CodeIgniter Architecture
+
+### **1. MVC Architecture**
+
+#### **Model Layer**
+
+```php
+<?php
+// ✅ Preferred: Clean model with proper database operations
+class User_model extends CI_Model {
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function get_all_users($limit = 10, $offset = 0) {
+        $this->db->select('id, username, email, created_date');
+        $this->db->from('users');
+        $this->db->where('status', 1);
+        $this->db->order_by('created_date', 'DESC');
+        $this->db->limit($limit, $offset);
+
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+    public function get_user_by_id($id) {
+        $this->db->where('id', $id);
+        $this->db->where('status', 1);
+        $query = $this->db->get('users');
+        return $query->first_row();
+    }
+
+    public function create_user($data) {
+        $data['created_date'] = date('Y-m-d H:i:s');
+        $data['status'] = 1;
+        return $this->db->insert('users', $data);
+    }
+
+    public function update_user($id, $data) {
+        $data['updated_date'] = date('Y-m-d H:i:s');
+        $this->db->where('id', $id);
+        return $this->db->update('users', $data);
+    }
+
+    public function delete_user($id) {
+        $this->db->where('id', $id);
+        return $this->db->update('users', ['status' => 0, 'updated_date' => date('Y-m-d H:i:s')]);
+    }
+}
+```
+
+#### **View Layer**
+
+```php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $title ?? 'My Application' ?></title>
+    <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/plugins/bootstrap/css/bootstrap.min.css') ?>">
+</head>
+<body>
+    <?php $this->load->view('widgets/header'); ?>
+    <?php $this->load->view('widgets/sidebar'); ?>
+
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <h1 class="page-title"><?= $page_title ?? 'Dashboard' ?></h1>
+                </div>
+            </div>
+
+            <!-- Page content here -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><?= $card_title ?? 'Content' ?></h5>
+                        </div>
+                        <div class="card-body">
+                            <?= $content ?? 'No content available' ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <?php $this->load->view('widgets/footer'); ?>
+
+    <script src="<?= base_url('assets/plugins/jquery/jquery.min.js') ?>"></script>
+    <script src="<?= base_url('assets/plugins/bootstrap/js/bootstrap.min.js') ?>"></script>
+</body>
+</html>
+```
+
+#### **Controller Layer**
+
+```php
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Dashboard extends MY_Controller {
+    public function __construct() {
+        parent::__construct();
+        $this->validateAccess($this->data);
+    }
+
+    public function index() {
+        // Set page data
+        $data['title'] = 'Dashboard';
+        $data['page_title'] = 'Welcome to Dashboard';
+
+        // Get user access data
+        $this->getMenu($data);
+
+        // Load dashboard data
+        $data['total_users'] = $this->dashboard_model->get_total_users();
+        $data['total_projects'] = $this->dashboard_model->get_total_projects();
+        $data['recent_activities'] = $this->dashboard_model->get_recent_activities();
+
+        // Load views
+        $this->template->view('dashboard', $data);
+    }
+
+    public function get_data() {
+        if (!$this->input->is_ajax_request()) {
+            show_404();
+        }
+
+        $result = [
+            'total_users' => $this->dashboard_model->get_total_users(),
+            'total_projects' => $this->dashboard_model->get_total_projects(),
+        ];
+
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($result));
+    }
+}
+```
+
+### **2. Base Controller (MY_Controller)**
+
+#### **Enhanced Base Controller**
+
+```php
+<?php
+if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+class MY_Controller extends CI_Controller {
+    protected $data = [];
+
+    public function __construct() {
+        parent::__construct();
+
+        // Load essential resources
+        $this->load->model(['user_model', 'app_model'], '', TRUE);
+        $this->load->helper(['form', 'url', 'validation', 'security']);
+        $this->load->library(['form_validation', 'session', 'encryption']);
+
+        // Security setup
+        $this->set_security_headers();
+        $this->enhance_session_security();
+        $this->autoDetectSlug();
+
+        // Common data
+        $this->data['base_url'] = base_url();
+        $this->data['site_name'] = 'My Application';
+    }
+
+    // Security headers
+    private function set_security_headers() {
+        header('X-Frame-Options: DENY');
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+    }
+
+    // Enhanced session security
+    private function enhance_session_security() {
+        $this->config->set_item('csrf_protection', TRUE);
+        $this->config->set_item('csrf_token_name', 'csrf_token');
+        $this->config->set_item('csrf_cookie_name', 'csrf_cookie');
+
+        if ($this->session && method_exists($this->session, 'userdata')) {
+            if (!$this->session->userdata('last_regenerate') ||
+                time() - $this->session->userdata('last_regenerate') > 300) {
+                $this->session->sess_regenerate(TRUE);
+                $this->session->set_userdata('last_regenerate', time());
+            }
+        }
+    }
+
+    // Common methods
+    public function validateAccess(&$data) {
+        $data['get_access'] = $this->get_access_master;
+        if (empty($data['get_access'])) {
+            redirect('login');
+        }
+    }
+
+    public function send_output($data, $type = "json") {
+        if ($type == "json") {
+            header('Content-type: application/json');
+            echo json_encode($data);
+            exit;
+        }
+    }
+
+    public function generate_notif($type, $message) {
+        $notif_class = ($type == 1) ? 'success' : 'error';
+        return '<div class="alert alert-' . $notif_class . '">' . $message . '</div>';
+    }
+}
+```
+
+### **3. Helper Functions**
+
+#### **Common Helper**
+
+```php
+<?php
+if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+// Generate copy URL input
+if (!function_exists('generate_copy_url_input')) {
+    function generate_copy_url_input($id, $url) {
+        return "<div class='input-group'>
+                    <input type='text' class='form-control copy-url-input'
+                           id='image" . $id . "' value='" . htmlspecialchars($url) . "' readonly>
+                    <div class='input-group-append'>
+                        <button class='btn copy-url-button' type='button'
+                                onclick='copyToClipboard(\"" . htmlspecialchars($url) . "\", this)'>
+                            <i class='fas fa-copy copy-url-icon'></i>
+                        </button>
+                    </div>
+                </div>";
+    }
+}
+
+// Generate image preview
+if (!function_exists('generate_image_preview')) {
+    function generate_image_preview($image_url, $options = []) {
+        $defaults = [
+            'width' => 160,
+            'height' => 120,
+            'class' => 'img-preview',
+            'alt' => 'Image preview'
+        ];
+
+        $settings = array_merge($defaults, $options);
+
+        if (empty($image_url)) {
+            return "<div class='empty-preview' style='text-align: center; width: 100%; height: 100%;
+                    background-color: #f8f9fa; display: flex; flex-direction: column; align-items: center;
+                    justify-content: center; border: 1px dashed #dee2e6; border-radius: 4px;'>
+                    <i class='far fa-image' style='font-size: 32px; color: #adb5bd;'></i>
+                    <div style='margin-top: 8px; font-size: 12px; color: #6c757d;'>No Image</div>
+                </div>";
+        }
+
+        return "<img src='" . htmlspecialchars($image_url) . "' class='" . $settings['class'] . "'
+                alt='" . htmlspecialchars($settings['alt']) . "' style='width: " . $settings['width'] . "px;
+                height: " . $settings['height'] . "px; object-fit: cover; border-radius: 4px;'>";
+    }
+}
+```
+
+#### **Button Helper**
+
+```php
+<?php
+if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+// Generate action buttons
+if (!function_exists('generate_action_buttons')) {
+    function generate_action_buttons($id, $edit_url = '', $delete_url = '', $view_url = '') {
+        $buttons = '';
+
+        if (!empty($view_url)) {
+            $buttons .= '<a href="' . $view_url . '" class="btn btn-sm btn-info mr-1" title="View">
+                            <i class="fas fa-eye"></i>
+                        </a>';
+        }
+
+        if (!empty($edit_url)) {
+            $buttons .= '<a href="' . $edit_url . '" class="btn btn-sm btn-warning mr-1" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>';
+        }
+
+        if (!empty($delete_url)) {
+            $buttons .= '<button type="button" class="btn btn-sm btn-danger" title="Delete"
+                            onclick="deleteItem(' . $id . ', \'' . $delete_url . '\')">
+                            <i class="fas fa-trash"></i>
+                        </button>';
+        }
+
+        return $buttons;
+    }
+}
+```
+
+### **4. Configuration Files**
+
+#### **config.php**
+
+```php
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+// Base URL configuration
+$config['base_url'] = ("https");
+$config['base_url'] .= "://" . $_SERVER['HTTP_HOST'];
+$config['base_url'] .= str_replace(basename($_SERVER['SCRIPT_NAME']), "", $_SERVER['SCRIPT_NAME']);
+
+define("HOMEPAGE", $config['base_url']);
+$config['index_page'] = '';
+$config['uri_protocol'] = 'REQUEST_URI';
+$config['charset'] = 'UTF-8';
+$config['enable_hooks'] = FALSE;
+$config['subclass_prefix'] = 'MY_';
+$config['composer_autoload'] = FALSE;
+$config['log_threshold'] = 0;
+$config['encryption_key'] = 'YOUR_ENCRYPTION_KEY_HERE';
+
+// Session Configuration
+$config['sess_driver'] = 'files';
+$config['sess_cookie_name'] = 'myapp_session';
+$config['sess_expire_on_close'] = FALSE;
+$config['sess_expiration'] = 7200;
+$config['sess_save_path'] = APPPATH . 'cache/sessions/';
+$config['sess_match_ip'] = TRUE;
+$config['sess_time_to_update'] = 300;
+$config['sess_regenerate_destroy'] = TRUE;
+
+// CSRF Protection
+$config['csrf_protection'] = TRUE;
+$config['csrf_token_name'] = 'csrf_token';
+$config['csrf_cookie_name'] = 'csrf_cookie';
+$config['csrf_expire'] = 7200;
+
+// Database Configuration
+$localDBUser = "postgres";
+$localDBPassword = "postgres";
+$localDBDatabase = "myapp";
+
+if ($_SERVER['SERVER_NAME'] == "localhost" || $_SERVER['SERVER_NAME'] == "myapp.local") {
+    DEFINE('DB_HOST', 'localhost');
+    DEFINE('DB_USER', $localDBUser);
+    DEFINE('DB_PASSWORD', $localDBPassword);
+    DEFINE('DB_DATABASE', $localDBDatabase);
+} else {
+    DEFINE('DB_HOST', 'YOUR_PRODUCTION_HOST');
+    DEFINE('DB_USER', 'YOUR_PRODUCTION_USER');
+    DEFINE('DB_PASSWORD', 'YOUR_PRODUCTION_PASSWORD');
+    DEFINE('DB_DATABASE', 'YOUR_PRODUCTION_DATABASE');
+}
+```
+
+#### **autoload.php**
+
+```php
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$autoload['libraries'] = [
+    'template',
+    'session',
+    'database',
+    'usermanagement',
+    'breadcrumbs'
+];
+
+$autoload['helper'] = [
+    'url',
+    'form',
+    'common',
+    'button_helper',
+    'uuid_helper',
+    'memory_helper',
+    'debug',
+    'privilege_helper',
+    'security'
+];
+
+$autoload['model'] = ['app_model'];
+$autoload['packages'] = [];
+$autoload['drivers'] = [];
+$autoload['config'] = [];
+$autoload['language'] = [];
+```
+
+#### **database.php**
+
+```php
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$active_group = 'default';
+$query_builder = TRUE;
+
+$db['default'] = [
+    'dsn' => '',
+    'hostname' => DB_HOST,
+    'username' => DB_USER,
+    'password' => DB_PASSWORD,
+    'database' => DB_DATABASE,
+    'dbdriver' => 'postgre',
+    'dbprefix' => '',
+    'pconnect' => FALSE,
+    'db_debug' => (ENVIRONMENT !== 'production'),
+    'cache_on' => FALSE,
+    'char_set' => 'utf8',
+    'dbcollat' => 'utf8_general_ci',
+    'swap_pre' => '',
+    'encrypt' => FALSE,
+    'compress' => FALSE,
+    'stricton' => FALSE,
+    'failover' => [],
+    'save_queries' => TRUE,
+    'port' => 5432,
+    'schema' => 'public'
+];
+```
+
+#### **routes.php**
+
+```php
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+$route['default_controller'] = 'login';
+$route['404_override'] = '';
+$route['translate_uri_dashes'] = FALSE;
+
+// Authentication Routes
+$route['logout'] = 'login/logout';
+$route['login-email'] = 'login/email';
+$route['new-user'] = 'login/newuser';
+$route['forgot-password'] = 'login/forgot';
+$route['change-password'] = 'login/change';
+
+// Main Routes
+$route['dashboard'] = 'dashboard';
+
+// User Management Routes
+$route['user'] = 'User';
+$route['user/get-data'] = 'User/get_data';
+$route['user/add'] = 'User/edit';
+$route['user/edit/(:any)'] = 'User/edit/$1';
+$route['user/delete/(:any)'] = 'User/delete/$1';
+
+// API Routes
+$route['api/(:any)'] = 'api/$1';
+```
+
+### **5. Library Classes**
+
+#### **Template Library**
+
+```php
+<?php
+if (!defined("BASEPATH")) exit("No direct script access allowed");
+
+class Template {
+    private $_template = 'template';
+    private $_parser = FALSE;
+    private $_cache_ttl = 0;
+    private $_widget_path = '';
+    private $_ci;
+    private $_partials = array();
+
+    public function __construct($config = array()) {
+        $this->_ci = & get_instance();
+        $this->_widget_path = APPPATH . 'widgets/';
+
+        if (!empty($config)) {
+            $this->initialize($config);
+        }
+    }
+
+    public function initialize($config = array()) {
+        foreach ($config as $key => $val) {
+            $this->{'_' . $key} = $val;
+        }
+
+        if ($this->_widget_path == '') {
+            $this->_widget_path = APPPATH . 'widgets/';
+        }
+    }
+
+    public function view($view, $data = array(), $return = FALSE) {
+        $data['content'] = $this->_ci->load->view($view, $data, TRUE);
+
+        if ($return) {
+            return $this->_ci->load->view($this->_template, $data, TRUE);
+        } else {
+            $this->_ci->load->view($this->_template, $data);
+        }
+    }
+}
+```
+
+#### **User Management Library**
+
+```php
+<?php
+if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+class Usermanagement {
+    private $CI;
+
+    public function __construct() {
+        $this->CI = &get_instance();
+        $this->CI->load->model('user_model');
+        $this->CI->load->library('session');
+    }
+
+    public function get_detail_user($user_id) {
+        return $this->CI->user_model->get_user_by_id($user_id);
+    }
+
+    public function generate_user_history($user_id, $data) {
+        return [
+            'user_id' => $user_id,
+            'action' => 'user_created',
+            'data' => json_encode($data),
+            'created_date' => date('Y-m-d H:i:s')
+        ];
+    }
+
+    public function generate_detail_log($page_title, $id_menu, $message, $new_data, $old_data) {
+        return [
+            'page_title' => $page_title,
+            'id_menu' => $id_menu,
+            'message' => $message,
+            'new_data' => json_encode($new_data),
+            'old_data' => json_encode($old_data),
+            'created_date' => date('Y-m-d H:i:s')
+        ];
+    }
+}
+```
+
+### **6. Widget System**
+
+#### **Header Widget**
+
+```php
+<header class="main-header">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="<?= base_url('dashboard') ?>">
+                My Application
+            </a>
+
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-toggle="dropdown">
+                            <i class="fas fa-user"></i> <?= $this->session->userdata('user_name') ?>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                            <a class="dropdown-item" href="<?= base_url('profile') ?>">
+                                <i class="fas fa-user-cog"></i> Profile
+                            </a>
+                            <a class="dropdown-item" href="<?= base_url('change-password') ?>">
+                                <i class="fas fa-key"></i> Change Password
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="<?= base_url('logout') ?>">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
+```
+
+## 🔧 Implementation Patterns
+
+### **1. Security Best Practices**
+
+#### **Input Validation**
+
+```php
+public function create_user() {
+    $this->form_validation->set_rules('username', 'Username', 'required|min_length[3]|max_length[50]');
+    $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+    $this->form_validation->set_rules('password', 'Password', 'required|min_length[8]');
+    $this->form_validation->set_rules('phone', 'Phone', 'regex_match[/^[0-9+\-\(\)\s]+$/]');
+
+    if ($this->form_validation->run() == FALSE) {
+        $this->session->set_flashdata('error', validation_errors());
+        redirect('user/add');
+        return;
+    }
+
+    // Sanitize input
+    $data = [
+        'username' => $this->security->xss_clean($this->input->post('username')),
+        'email' => $this->security->xss_clean($this->input->post('email')),
+        'phone' => $this->security->xss_clean($this->input->post('phone'))
+    ];
+}
+```
+
+#### **SQL Injection Prevention**
+
+```php
+// ✅ Safe query building
+public function get_user_by_email($email) {
+    $this->db->select('id, username, email, status');
+    $this->db->from('users');
+    $this->db->where('email', $email);
+    $this->db->where('status', 1);
+    $query = $this->db->get();
+    return $query->first_row();
+}
+
+// ❌ Avoid raw queries
+// $query = "SELECT * FROM users WHERE email = '$email'"; // DANGEROUS
+```
+
+#### **XSS Protection**
+
+```php
+// ✅ Safe output
+public function display_user_data($user) {
+    return [
+        'username' => htmlspecialchars($user->username),
+        'email' => htmlspecialchars($user->email),
+        'bio' => $this->security->xss_clean($user->bio)
+    ];
+}
+```
+
+### **2. Session Management**
+
+#### **Secure Session Configuration**
+
+```php
+// In config.php
+$config['sess_driver'] = 'files';
+$config['sess_cookie_name'] = 'myapp_session';
+$config['sess_expire_on_close'] = FALSE;
+$config['sess_expiration'] = 7200; // 2 hours
+$config['sess_save_path'] = APPPATH . 'cache/sessions/';
+$config['sess_match_ip'] = TRUE;
+$config['sess_time_to_update'] = 300;
+$config['sess_regenerate_destroy'] = TRUE;
+```
+
+#### **Session Usage**
+
+```php
+class Auth extends MY_Controller {
+    public function login() {
+        if ($this->input->post()) {
+            $email = $this->input->post('email');
+            $password = $this->input->post('password');
+
+            $user = $this->user_model->authenticate($email, $password);
+
+            if ($user) {
+                // Set session data
+                $this->session->set_userdata([
+                    'user_id' => $user->id,
+                    'user_email' => $user->email,
+                    'user_name' => $user->username,
+                    'last_regenerate' => time()
+                ]);
+
+                redirect('dashboard');
+            } else {
+                $this->session->set_flashdata('error', 'Invalid credentials');
+                redirect('login');
+            }
+        }
+
+        $this->load->view('login');
+    }
+
+    public function logout() {
+        $this->session->sess_destroy();
+        redirect('login');
+    }
+}
+```
+
+### **3. Error Handling**
+
+#### **Custom Error Handling**
+
+```php
+class Error extends MY_Controller {
+    public function error_404() {
+        $data['title'] = 'Page Not Found';
+        $data['heading'] = '404 Page Not Found';
+        $data['message'] = 'The page you requested was not found.';
+
+        $this->load->view('errors/error_404', $data);
+    }
+
+    public function error_general() {
+        $data['title'] = 'Error';
+        $data['heading'] = 'An Error Was Encountered';
+        $data['message'] = 'An internal error occurred. Please try again later.';
+
+        $this->load->view('errors/error_general', $data);
+    }
+}
+```
+
+#### **Database Error Handling**
+
+```php
+public function create_user() {
+    $data = [
+        'username' => $this->input->post('username'),
+        'email' => $this->input->post('email'),
+        'created_date' => date('Y-m-d H:i:s')
+    ];
+
+    if (!$this->db->insert('users', $data)) {
+        log_message('error', 'Database insert failed: ' . $this->db->error());
+        $this->session->set_flashdata('error', 'Failed to create user');
+        redirect('user/add');
+        return;
+    }
+
+    $this->session->set_flashdata('success', 'User created successfully');
+    redirect('user');
+}
+```
+
+### **4. File Upload Security**
+
+#### **Secure Upload Configuration**
+
+```php
+// In config/upload.php
+$config['upload_path'] = './uploads/';
+$config['allowed_types'] = 'gif|jpg|png|jpeg|pdf|doc|docx';
+$config['max_size'] = 2048; // 2MB
+$config['max_width'] = 1024;
+$config['max_height'] = 768;
+$config['encrypt_name'] = TRUE;
+$config['remove_spaces'] = TRUE;
+```
+
+#### **Secure Upload Controller**
+
+```php
+public function upload_file() {
+    $config['upload_path'] = './uploads/';
+    $config['allowed_types'] = 'gif|jpg|png|jpeg|pdf|doc|docx';
+    $config['max_size'] = 2048;
+    $config['encrypt_name'] = TRUE;
+
+    $this->load->library('upload', $config);
+
+    if (!$this->upload->do_upload('userfile')) {
+        $error = ['error' => $this->upload->display_errors()];
+        $this->session->set_flashdata('error', $error['error']);
+        redirect('upload');
+    } else {
+        $data = $this->upload->data();
+        // Process uploaded file
+        $this->process_uploaded_file($data['file_name']);
+    }
+}
+```
+
+## 📁 Project Structure Best Practices
+
+### **Standard CodeIgniter Layout**
+
+```
+PROJECT_NAME/
+├── application/
+│   ├── cache/
+│   ├── config/
+│   ├── controllers/
+│   ├── core/
+│   ├── helpers/
+│   ├── libraries/
+│   ├── models/
+│   ├── views/
+│   └── widgets/
+├── assets/
+│   ├── css/
+│   ├── js/
+│   ├── images/
+│   └── plugins/
+├── system/
+├── vendor/
+├── uploads/
+├── index.php
+└── .htaccess
+```
+
+### **File Organization**
+
+- **Controllers**: One file per controller, named with PascalCase
+- **Models**: One file per model, named with lowercase and underscores
+- **Views**: Organized in folders by feature/section
+- **Helpers**: Utility functions organized by functionality
+- **Libraries**: Custom classes for reusable functionality
+- **Config**: Environment-specific configuration files
+
+This CodeIgniter architecture ensures secure, maintainable, and scalable PHP applications following established MVC patterns and security best practices.

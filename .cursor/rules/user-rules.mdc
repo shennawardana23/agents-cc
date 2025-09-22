@@ -1,0 +1,333 @@
+---
+description: Comprehensive user interaction guidelines for AI agents, communication protocols, and collaboration patterns for custom scenarios without attached documentation
+globs: **/*
+alwaysApply: true
+---
+
+# User Rules for AI Agent Interaction
+
+Comprehensive guidelines for interacting with AI agents in the Arcipelago International studio system. These rules ensure effective communication, proper agent activation, and successful collaboration, especially in custom scenarios without attached documentation.
+
+## 🎯 Core Philosophy
+
+### **Agent-First Communication**
+
+- **Clear Intent**: Always express what you want to accomplish before providing details
+- **Context-Aware**: Agents should infer missing information from project context and patterns
+- **Proactive Assistance**: Agents should ask clarifying questions when requirements are unclear
+- **Documentation Independence**: Agents should work effectively even without attached documentation
+
+### **Custom Scenario Handling**
+
+- **Pattern Recognition**: Use existing project patterns to infer requirements
+- **Best Practice Application**: Apply established conventions from similar implementations
+- **Clarification Seeking**: Ask targeted questions when context is insufficient
+- **Progressive Enhancement**: Start with basic implementation and iterate based on feedback
+
+## 🤖 Agent Interaction Guidelines
+
+### **Activation Methods**
+
+#### **1. Direct Agent Mention**
+
+```markdown
+@ux-researcher, please analyze our user onboarding flow and suggest improvements
+```
+
+#### **2. Expertise-Based Request**
+
+```markdown
+I need to improve our user authentication system with better error handling
+```
+
+#### **3. Task-Based Assignment**
+
+```markdown
+Create a responsive dashboard component that displays user analytics data
+```
+
+#### **4. Custom Scenario Request**
+
+```markdown
+I have a complex business logic requirement that needs to integrate with our existing user management system. The current implementation uses JWT tokens and PostgreSQL. Please implement this following our established patterns.
+```
+
+### **Custom Scenario Communication**
+
+When working without attached documentation:
+
+1. **Describe Current State**
+
+   ```markdown
+   We're building on our existing e-commerce platform that uses:
+   - React frontend with TypeScript
+   - Go backend with Clean Architecture
+   - PostgreSQL database
+   - Redis for caching
+   ```
+
+2. **Specify Integration Points**
+
+   ```markdown
+   This needs to integrate with our existing user authentication system and payment processing module
+   ```
+
+3. **Define Success Criteria**
+
+   ```markdown
+   The implementation should handle 1000 concurrent users and process transactions within 2 seconds
+   ```
+
+4. **Mention Constraints**
+
+   ```markdown
+   Must work within our existing error handling patterns and logging system
+   ```
+
+## 🏗️ Custom Implementation Guidelines
+
+### **Pattern Recognition & Application**
+
+When no documentation is provided, agents should:
+
+1. **Analyze Existing Codebase**
+   - Review similar implementations in the project
+   - Identify established patterns and conventions
+   - Use existing utility functions and helpers
+
+2. **Apply Established Standards**
+   - Follow project-specific coding conventions
+   - Use established architectural patterns
+   - Apply consistent error handling approaches
+
+3. **Seek Clarification Proactively**
+
+   ```markdown
+   I notice you have several authentication patterns in your codebase. Should I follow the JWT-based approach used in your user management module, or do you have a different preference for this implementation?
+   ```
+
+### **Progressive Implementation**
+
+For custom scenarios:
+
+1. **Start with Core Functionality**
+   - Implement the basic required functionality
+   - Use established patterns and conventions
+   - Ensure compatibility with existing systems
+
+2. **Add Enhancement Layers**
+   - Include error handling and validation
+   - Add logging and monitoring
+   - Implement security measures
+
+3. **Provide Implementation Options**
+   - Suggest multiple approaches when applicable
+   - Explain trade-offs between different solutions
+   - Recommend based on project context
+
+## 📋 Agent Selection for Custom Work
+
+### **Expertise Matching**
+
+#### **Complex Technical Requirements**
+
+- **AI Engineer**: Advanced algorithms, ML integration, complex data processing
+- **DevOps Automator**: Infrastructure, deployment, scaling challenges
+- **Test Writer Fixer**: Comprehensive testing strategies, quality assurance
+
+#### **Integration & Architecture**
+
+- **Backend Architect**: API design, database optimization, system integration
+- **Mobile App Builder**: Cross-platform compatibility, native features
+- **Rapid Prototyper**: Quick implementation, MVP development
+
+#### **User Experience & Interface**
+
+- **UX Researcher**: User flow optimization, interaction design
+- **Visual Storyteller**: Information architecture, visual hierarchy
+- **Frontend Developer**: Component architecture, responsive design
+
+### **Multi-Agent Coordination**
+
+For complex custom scenarios:
+
+```markdown
+@backend-architect and @frontend-developer need to collaborate on implementing a real-time collaborative editing feature for our document management system
+```
+
+## 🔧 Custom Implementation Request Structure
+
+### **Complete Request Template**
+
+```markdown
+**Context**: [Brief description of current situation and existing systems]
+**Goal**: [What you want to accomplish]
+**Integration Points**: [How this should connect with existing systems]
+**Technical Requirements**: [Specific technical constraints or preferences]
+**Success Criteria**: [How to measure if implementation is successful]
+**Timeline**: [When you need this completed]
+**Format**: [How you want the output structured]
+
+**Additional Context**:
+- Current tech stack: [languages, frameworks, databases]
+- Existing patterns: [naming conventions, architectural patterns]
+- Constraints: [performance requirements, security considerations]
+```
+
+### **Example: Custom E-commerce Feature**
+
+```markdown
+**Context**: We're building on our existing e-commerce platform
+**Goal**: Implement a subscription billing system for recurring orders
+**Integration Points**: Needs to work with existing user management and payment processing
+**Technical Requirements**: Use Stripe for payment processing, follow our existing error handling patterns
+**Success Criteria**: Handle 1000+ concurrent subscriptions, process recurring billing accurately
+**Timeline**: Need basic implementation by Friday
+**Format**: Go structs and handlers, React components for admin interface
+
+**Additional Context**:
+- Backend: Go with Clean Architecture patterns
+- Frontend: React with TypeScript
+- Database: PostgreSQL with existing user and order tables
+- Authentication: JWT-based system already in place
+```
+
+## 🛠️ Quality Standards for Custom Work
+
+### **Code Quality Expectations**
+
+- **Pattern Consistency**: Follow established project patterns and conventions
+- **Error Handling**: Implement comprehensive error handling using existing patterns
+- **Documentation**: Provide clear documentation for complex logic
+- **Testing**: Include appropriate tests following project testing standards
+- **Performance**: Consider performance implications and optimization opportunities
+
+### **Integration Standards**
+
+- **System Compatibility**: Ensure compatibility with existing systems
+- **Data Consistency**: Maintain data integrity across integrated components
+- **Security Compliance**: Follow established security practices
+- **Monitoring Ready**: Include appropriate logging and monitoring hooks
+
+## 🔄 Feedback & Iteration Process
+
+### **Providing Feedback on Custom Work**
+
+```markdown
+@agent-name, thanks for the implementation. I have some feedback:
+
+**What Works Well**:
+- Clean integration with existing authentication system
+- Good error handling implementation
+
+**Areas for Improvement**:
+1. **Performance**: The database queries could be optimized for better performance
+2. **Edge Cases**: Need to handle the case where users have multiple active subscriptions
+3. **Admin Interface**: The admin controls need additional filtering options
+
+**Priority Order**:
+1. Fix edge case handling (High priority - affects functionality)
+2. Optimize database queries (Medium priority - performance improvement)
+3. Enhance admin interface (Low priority - nice to have)
+
+Could you please revise the implementation with these considerations?
+```
+
+## 🚨 Handling Ambiguous Requirements
+
+### **Clarification Protocol**
+
+When requirements are unclear, agents should:
+
+1. **Identify Ambiguities**
+
+   ```
+   I want to make sure I understand correctly. You mentioned [specific requirement], but I need clarification on [ambiguous aspect].
+   ```
+
+2. **Propose Interpretations**
+
+   ```
+   Based on your existing codebase patterns, I assume you want me to follow the [specific pattern] approach. Is that correct?
+   ```
+
+3. **Offer Options**
+
+   ```
+   I see two possible approaches:
+   1. [Option A] - following your existing [pattern]
+   2. [Option B] - using [alternative approach]
+
+   Which would you prefer, or do you have a different approach in mind?
+   ```
+
+4. **Request Examples**
+
+   ```
+   Could you provide an example of how this should work? For instance, what should happen when [specific scenario] occurs?
+   ```
+
+## 📚 Documentation for Custom Work
+
+### **Self-Documenting Code**
+
+- **Clear Function Names**: Use descriptive names that explain purpose
+- **Comprehensive Comments**: Document complex logic and business rules
+- **Usage Examples**: Include examples of how to use the implementation
+- **Integration Notes**: Document how it connects with existing systems
+
+### **Implementation Documentation**
+
+```markdown
+## Implementation Notes
+
+**Architecture Decision**: Used [pattern] to ensure compatibility with existing [system]
+
+**Integration Points**:
+- [System A]: Connected via [method]
+- [System B]: Uses existing [API/protocol]
+
+**Usage Example**:
+```go
+// Example usage
+result, err := customFunction(ctx, params)
+if err != nil {
+    // Handle error according to project patterns
+}
+```
+
+**Future Considerations**:
+
+- May need optimization for high-traffic scenarios
+- Consider caching layer for improved performance
+- Monitor error rates in production
+
+```
+
+## 🎯 Best Practices Summary
+
+### **For Custom Work Requests**
+
+1. **Be Specific**: Clearly describe what you need, even without documentation
+2. **Provide Context**: Explain how this fits into existing systems
+3. **Set Expectations**: Define success criteria and constraints
+4. **Allow Flexibility**: Be open to agent suggestions based on project patterns
+5. **Request Clarification**: Ask questions when something is unclear
+
+### **For Complex Custom Projects**
+
+1. **Break Down Tasks**: Divide large custom implementations into manageable pieces
+2. **Coordinate Agents**: Use multiple agents when different expertise areas are needed
+3. **Document Progress**: Keep track of decisions and implementation details
+4. **Plan Integration**: Consider how custom work will integrate with existing systems
+5. **Test Thoroughly**: Validate custom implementations against existing patterns
+
+### **For Quality Assurance**
+
+1. **Follow Patterns**: Use established project patterns and conventions
+2. **Handle Errors**: Implement comprehensive error handling
+3. **Document Decisions**: Explain why certain approaches were chosen
+4. **Test Integration**: Ensure compatibility with existing systems
+5. **Performance Conscious**: Consider performance implications
+
+This system enables effective collaboration on custom implementations even without attached documentation, leveraging established project patterns and agent expertise to deliver high-quality results.

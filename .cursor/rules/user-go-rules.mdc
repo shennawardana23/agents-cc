@@ -1,0 +1,598 @@
+---
+globs: **/*.go
+alwaysApply: false
+---
+# User Go Rules - Personal Preferences
+
+These are personal Go development preferences and conventions that reflect my coding style and project-specific requirements for Go applications. These rules complement the general Go rules while providing specific patterns and preferences for my development workflow.
+
+## 🎯 Personal Go Philosophy
+
+### **"Fast, Clean, and Reliable"**
+
+I prioritize code that is:
+
+- **Fast to write** - Minimal boilerplate, clear patterns
+- **Fast to run** - Optimized for performance from day one
+- **Easy to maintain** - Self-documenting and well-structured
+- **Reliable** - Comprehensive error handling and testing
+
+## 📋 Project Structure Preferences
+
+### **Standard Project Layout**
+
+```go
+myapp/
+├── cmd/
+│   └── api/           # Main API server
+│   └── worker/        # Background workers
+│   └── migrate/       # Database migrations
+├── internal/
+│   ├── api/           # HTTP handlers and routing
+│   ├── business/      # Core business logic
+│   ├── data/          # Data access layer
+│   ├── models/        # Data structures
+│   └── services/      # Application services
+├── pkg/
+│   ├── errors/        # Custom error types
+│   └── utils/         # Shared utilities
+├── configs/           # Configuration files
+├── scripts/           # Build and deployment scripts
+├── migrations/        # Database migrations
+├── docs/              # Documentation
+└── tests/             # Integration tests
+```
+
+### **API Structure**
+
+```go
+internal/api/
+├── handlers/          # HTTP handlers
+│   └── users.go
+│   └── orders.go
+├── middleware/        # Custom middleware
+│   └── auth.go
+│   └── logging.go
+├── routes/            # Route definitions
+│   └── routes.go
+└── server/            # Server setup
+    └── server.go
+```
+
+## 🏗️ Naming Conventions
+
+### **Personal Preferences**
+
+```go
+// ✅ Preferred: Clear and concise
+type UserService struct{}
+type CreateUserRequest struct{}
+type UserRepository interface{}
+var userCache *Cache[string, *User]
+
+// ✅ Preferred: Acronyms handled well
+type HTTPClient struct{}
+type JSONResponse struct{}
+type APIError struct{}
+
+// ✅ Preferred: Context-aware names
+ctx context.Context
+db *sql.DB
+cfg *Config
+```
+
+### **Error Types**
+
+```go
+// ✅ Preferred: Custom error types
+var (
+    ErrUserNotFound     = errors.New("user not found")
+    ErrInvalidInput     = errors.New("invalid input")
+    ErrUnauthorized     = errors.New("unauthorized")
+    ErrDatabaseError    = errors.New("database error")
+    ErrValidationFailed = errors.New("validation failed")
+)
+```
+
+### **Constants and Configuration**
+
+```go
+// ✅ Preferred: Grouped constants
+const (
+    DefaultTimeout   = 30 * time.Second
+    MaxRetries       = 3
+    BufferSize       = 1024
+    DefaultPort      = 8080
+    MaxConnections   = 100
+)
+
+type Config struct {
+    Database DatabaseConfig
+    Server   ServerConfig
+    Logging  LoggingConfig
+    Metrics  MetricsConfig
+}
+```
+
+## 🔧 Function Design Patterns
+
+### **Service Layer Pattern**
+
+```go
+// ✅ Preferred: Service layer with clear separation
+type UserService struct {
+    repo   UserRepository
+    cache  Cache
+    logger *logrus.Logger
+}
+
+func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {
+    // Validate input
+    if err := req.Validate(); err != nil {
+        return nil, fmt.Errorf("validation failed: %w", err)
+    }
+
+    // Check cache first
+    if user, found := s.cache.Get(req.Email); found {
+        return user, nil
+    }
+
+    // Create in database
+    user, err := s.repo.Create(ctx, req.ToUser())
+    if err != nil {
+        s.logger.WithError(err).Error("failed to create user")
+        return nil, fmt.Errorf("failed to create user: %w", err)
+    }
+
+    // Cache the result
+    s.cache.Set(req.Email, user, time.Hour)
+
+    return user, nil
+}
+```
+
+### **Repository Pattern**
+
+```go
+// ✅ Preferred: Repository with context and error handling
+type UserRepository struct {
+    db *sql.DB
+}
+
+func (r *UserRepository) GetByID(ctx context.Context, id string) (*User, error) {
+    query := `SELECT id, email, name, created_at FROM users WHERE id = $1`
+
+    user := &User{}
+    err := r.db.QueryRowContext(ctx, query, id).Scan(
+        &user.ID, &user.Email, &user.Name, &user.CreatedAt,
+    )
+    if err != nil {
+        if errors.Is(err, sql.ErrNoRows) {
+            return nil, ErrUserNotFound
+        }
+        return nil, fmt.Errorf("database query failed: %w", err)
+    }
+
+    return user, nil
+}
+```
+
+### **HTTP Handlers**
+
+```go
+// ✅ Preferred: Clean HTTP handlers
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+    var req CreateUserRequest
+    if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+        RespondWithError(w, http.StatusBadRequest, "invalid JSON")
+        return
+    }
+
+    user, err := h.userService.CreateUser(r.Context(), req)
+    if err != nil {
+        h.logger.WithError(err).Error("failed to create user")
+        RespondWithError(w, http.StatusInternalServerError, "internal error")
+        return
+    }
+
+    RespondWithJSON(w, http.StatusCreated, user)
+}
+```
+
+## 🧪 Testing Patterns
+
+### **Unit Tests**
+
+```go
+// ✅ Preferred: Comprehensive unit tests
+func TestUserService_CreateUser(t *testing.T) {
+    tests := []struct {
+        name    string
+        req     CreateUserRequest
+        mockFn  func()
+        want    *User
+        wantErr error
+    }{
+        {
+            name: "successful creation",
+            req: CreateUserRequest{
+                Email: "test@example.com",
+                Name:  "Test User",
+            },
+            mockFn: func() {
+                // Mock setup
+            },
+            want: &User{
+                ID:    "123",
+                Email: "test@example.com",
+                Name:  "Test User",
+            },
+            wantErr: nil,
+        },
+        {
+            name: "validation error",
+            req: CreateUserRequest{
+                Email: "invalid-email",
+                Name:  "",
+            },
+            mockFn: func() {
+                // Mock setup
+            },
+            want:    nil,
+            wantErr: ErrValidationFailed,
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            // Test setup and execution
+        })
+    }
+}
+```
+
+### **Integration Tests**
+
+```go
+// ✅ Preferred: Integration tests with test containers
+func TestUserAPI_CreateUser(t *testing.T) {
+    // Start test database
+    db, cleanup := startTestDatabase(t)
+    defer cleanup()
+
+    // Setup test server
+    server := setupTestServer(db)
+    defer server.Close()
+
+    // Test request
+    reqBody := `{"email": "test@example.com", "name": "Test User"}`
+    resp, err := http.Post(server.URL+"/api/users", "application/json", strings.NewReader(reqBody))
+    require.NoError(t, err)
+    defer resp.Body.Close()
+
+    assert.Equal(t, http.StatusCreated, resp.StatusCode)
+}
+```
+
+## ⚡ Performance Patterns
+
+### **Caching Strategy**
+
+```go
+// ✅ Preferred: Multi-level caching
+type CachingService struct {
+    redis  *redis.Client
+    memory *Cache
+    logger *logrus.Logger
+}
+
+func (s *CachingService) GetUser(ctx context.Context, id string) (*User, error) {
+    // Try memory cache first
+    if user, found := s.memory.Get(id); found {
+        return user, nil
+    }
+
+    // Try Redis cache
+    if user, err := s.redis.Get(ctx, "user:"+id).Result(); err == nil {
+        var u User
+        if err := json.Unmarshal([]byte(user), &u); err == nil {
+            // Store in memory cache
+            s.memory.Set(id, &u, 5*time.Minute)
+            return &u, nil
+        }
+    }
+
+    // Fetch from database and cache
+    user, err := s.repo.GetByID(ctx, id)
+    if err != nil {
+        return nil, err
+    }
+
+    // Cache in both layers
+    s.memory.Set(id, user, 5*time.Minute)
+    userJSON, _ := json.Marshal(user)
+    s.redis.Set(ctx, "user:"+id, userJSON, 10*time.Minute)
+
+    return user, nil
+}
+```
+
+### **Database Optimization**
+
+```go
+// ✅ Preferred: Optimized queries with proper indexing
+func (r *UserRepository) GetActiveUsers(ctx context.Context, limit int) ([]*User, error) {
+    // Use proper query structure
+    query := `
+        SELECT u.id, u.email, u.name, u.created_at,
+               COUNT(o.id) as order_count
+        FROM users u
+        LEFT JOIN orders o ON u.id = o.user_id
+        WHERE u.status = 'active'
+          AND u.created_at >= $1
+        GROUP BY u.id, u.email, u.name, u.created_at
+        ORDER BY order_count DESC, u.created_at DESC
+        LIMIT $2
+    `
+
+    since := time.Now().AddDate(0, -1, 0) // Last month
+    rows, err := r.db.QueryContext(ctx, query, since, limit)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var users []*User
+    for rows.Next() {
+        // Scan and process
+    }
+
+    return users, nil
+}
+```
+
+## 🔒 Security Patterns
+
+### **Input Validation**
+
+```go
+// ✅ Preferred: Comprehensive input validation
+func (s *UserService) UpdateUser(ctx context.Context, id string, req UpdateUserRequest) error {
+    // Validate UUID format
+    if _, err := uuid.Parse(id); err != nil {
+        return ErrInvalidID
+    }
+
+    // Validate email format
+    if req.Email != nil {
+        if !isValidEmail(*req.Email) {
+            return ErrInvalidEmail
+        }
+    }
+
+    // Validate name length
+    if req.Name != nil {
+        if len(*req.Name) < 2 || len(*req.Name) > 50 {
+            return ErrInvalidName
+        }
+    }
+
+    // Check authorization
+    userID := getUserIDFromContext(ctx)
+    if userID != id && !isAdmin(ctx) {
+        return ErrUnauthorized
+    }
+
+    return s.repo.Update(ctx, id, req)
+}
+```
+
+### **Authentication Middleware**
+
+```go
+// ✅ Preferred: JWT authentication with refresh tokens
+func JWTAuthMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // Extract token from header
+        authHeader := r.Header.Get("Authorization")
+        if authHeader == "" {
+            RespondWithError(w, http.StatusUnauthorized, "missing auth token")
+            return
+        }
+
+        // Validate token format
+        tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+        claims, err := validateJWT(tokenString)
+        if err != nil {
+            RespondWithError(w, http.StatusUnauthorized, "invalid token")
+            return
+        }
+
+        // Check token expiration
+        if claims.ExpiresAt.Before(time.Now()) {
+            RespondWithError(w, http.StatusUnauthorized, "token expired")
+            return
+        }
+
+        // Add claims to context
+        ctx := context.WithValue(r.Context(), "user_id", claims.UserID)
+        ctx = context.WithValue(ctx, "user_role", claims.Role)
+        next.ServeHTTP(w, r.WithContext(ctx))
+    })
+}
+```
+
+## 📚 Documentation Preferences
+
+### **API Documentation**
+
+```go
+// CreateUser creates a new user account with the provided information.
+// The password is automatically hashed using bcrypt.
+//
+// Request validation includes:
+// - Email format validation
+// - Password strength requirements
+// - Name length constraints
+//
+// Returns the created user object with generated ID and timestamps.
+//
+// Example:
+//   req := CreateUserRequest{
+//       Email: "user@example.com",
+//       Name: "John Doe",
+//       Password: "securePassword123",
+//   }
+//   user, err := service.CreateUser(ctx, req)
+//
+// Possible errors:
+// - ErrValidationFailed: Invalid input data
+// - ErrUserExists: Email already registered
+// - ErrDatabaseError: Database operation failed
+func (s *UserService) CreateUser(ctx context.Context, req CreateUserRequest) (*User, error)
+```
+
+### **Package Documentation**
+
+```go
+// Package api provides HTTP handlers and routing for the user management API.
+//
+// This package handles:
+// - User registration and authentication
+// - Profile management and updates
+// - Account settings and preferences
+//
+// All handlers include proper middleware for:
+// - Request logging and metrics
+// - Authentication and authorization
+// - Input validation and sanitization
+// - Error handling and response formatting
+//
+// Usage:
+//   server := NewServer(db, cache, logger)
+//   http.Handle("/api/users/", server.Handler())
+package api
+```
+
+## 🛠️ Tool Integration Preferences
+
+### **Development Tools**
+
+```go
+// Preferred tools and versions
+// go 1.21+
+// golangci-lint v1.55+
+// mockery v2.0+
+// migrate v4.15+
+// air for hot reloading
+```
+
+### **Testing Tools**
+
+```go
+// Test setup with testify and testcontainers
+import (
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+    "github.com/testcontainers/testcontainers-go"
+)
+```
+
+### **Database Tools**
+
+```go
+// Database migration and testing
+// golang-migrate/migrate for migrations
+// pgx for PostgreSQL driver
+// testcontainers for integration tests
+```
+
+## 📊 Code Quality Standards
+
+### **Complexity Limits**
+
+- **Cyclomatic complexity**: ≤ 8 per function
+- **Function length**: ≤ 25 lines
+- **File size**: ≤ 300 lines
+- **Struct fields**: ≤ 12 per struct
+
+### **Test Coverage**
+
+- **Minimum coverage**: 85%
+- **Critical paths**: 100%
+- **Error paths**: 100%
+- **Edge cases**: 90%
+
+### **Performance Benchmarks**
+
+- All services should have benchmarks
+- Database queries should be profiled
+- Memory usage should be monitored
+- Response times should be measured
+
+## 🚨 Personal Pitfalls to Avoid
+
+### **Anti-Patterns**
+
+- Don't use global variables for state
+- Don't mix concerns in handlers
+- Don't skip validation in "internal" functions
+- Don't use magic numbers or strings
+- Don't ignore linter warnings
+- Don't commit commented-out code
+
+### **Common Mistakes**
+
+- Forgetting to handle context cancellation
+- Not validating inputs in private functions
+- Using channels without proper buffering
+- Creating goroutines without cleanup
+- Not using interfaces for testability
+
+## 🎯 Personal Best Practices
+
+### **Code Organization**
+
+1. **Single Responsibility** - Each function, struct, and package has one clear purpose
+2. **Dependency Injection** - Use constructor injection for all dependencies
+3. **Interface Segregation** - Keep interfaces small and focused
+4. **Error Wrapping** - Always wrap errors with context
+5. **Context Usage** - Pass context through all layers
+
+### **Testing Strategy**
+
+1. **Unit Tests First** - Test business logic in isolation
+2. **Integration Tests** - Test component interactions
+3. **E2E Tests** - Test complete user journeys
+4. **Benchmark Tests** - Measure performance regressions
+5. **Property Tests** - Test behavioral properties
+
+### **Performance Optimization**
+
+1. **Profile First** - Measure before optimizing
+2. **Cache Strategically** - Cache expensive operations
+3. **Batch Operations** - Reduce database round trips
+4. **Connection Pooling** - Reuse database connections
+5. **Memory Management** - Avoid unnecessary allocations
+
+### **Security Measures**
+
+1. **Input Validation** - Validate all inputs thoroughly
+2. **SQL Injection Prevention** - Use parameterized queries
+3. **Authentication** - Implement proper auth flows
+4. **Authorization** - Check permissions at every level
+5. **Data Protection** - Encrypt sensitive data
+
+### **Maintainability**
+
+1. **Clear Naming** - Use descriptive, unambiguous names
+2. **Good Documentation** - Document all exported functions
+3. **Consistent Formatting** - Use gofmt and follow standards
+4. **Error Handling** - Handle all errors appropriately
+5. **Code Reviews** - Review all changes thoroughly
+
+---
+
+*"Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away." - Antoine de Saint-Exupéry*
+
+These personal Go rules reflect my preferred patterns and practices for writing clean, maintainable, and efficient Go code. They emphasize simplicity, reliability, and performance while maintaining high code quality standards.

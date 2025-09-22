@@ -1,0 +1,165 @@
+{
+    "version": "1.0.0",
+    "name": "Studio AI Agents for Cursor",
+    "description": "Comprehensive collection of specialized AI agents designed to accelerate and enhance every aspect of rapid development",
+    "author": "Studio AI Team",
+    "aiModel": {
+        "default": "claude-3.5-sonnet",
+        "highComplexity": "claude-3.5-sonnet",
+        "research": "claude-3.5-sonnet",
+        "fallback": "claude-3-haiku"
+    },
+    "context": {
+        "maxFiles": 50,
+        "maxTokens": 128000,
+        "projectRoot": "/Users/msw/Desktop/Development/Startup_Companies/Arcipelago_International/repo-personal/agents-cc"
+    },
+    "features": {
+        "multiAgent": true,
+        "taskManagement": true,
+        "codeReview": true,
+        "documentation": true,
+        "testing": true
+    },
+    "memories": {
+        "enabled": true,
+        "autoLearn": true,
+        "categories": [
+            "project-preferences",
+            "coding-patterns",
+            "user-feedback",
+            "technical-decisions",
+            "team-preferences",
+            "best-practices",
+            "architecture-patterns",
+            "security-standards",
+            "workflow-patterns",
+            "development-tools"
+        ],
+        "autoCapture": {
+            "decisions": true,
+            "preferences": true,
+            "patterns": true,
+            "feedback": true,
+            "learnings": true
+        },
+        "retention": {
+            "maxMemories": 1000,
+            "cleanupThreshold": 800,
+            "retentionDays": 365
+        },
+        "privacy": {
+            "sensitiveDataFiltering": true,
+            "userConsentRequired": false,
+            "dataAnonymization": true
+        }
+    },
+    "agents": {
+        "engineering": [
+            "ai-engineer",
+            "backend-architect",
+            "devops-automator",
+            "frontend-developer",
+            "mobile-app-builder",
+            "rapid-prototyper",
+            "test-writer-fixer"
+        ],
+        "design": [
+            "brand-guardian",
+            "ui-designer",
+            "ux-researcher",
+            "visual-storyteller",
+            "whimsy-injector"
+        ],
+        "marketing": [
+            "app-store-optimizer",
+            "content-creator",
+            "growth-hacker",
+            "instagram-curator",
+            "reddit-community-builder",
+            "tiktok-strategist",
+            "twitter-engager"
+        ],
+        "product": [
+            "feedback-synthesizer",
+            "sprint-prioritizer",
+            "trend-researcher"
+        ],
+        "projectManagement": [
+            "experiment-tracker",
+            "project-shipper",
+            "studio-producer"
+        ],
+        "studioOperations": [
+            "analytics-reporter",
+            "finance-tracker",
+            "infrastructure-maintainer",
+            "legal-compliance-checker",
+            "support-responder"
+        ],
+        "testing": [
+            "api-tester",
+            "performance-benchmarker",
+            "test-results-analyzer",
+            "tool-evaluator",
+            "workflow-optimizer"
+        ],
+        "bonus": [
+            "joker",
+            "studio-coach"
+        ]
+    },
+    "workflows": {
+        "sprint": {
+            "duration": "6-days",
+            "phases": [
+                "planning",
+                "development",
+                "testing",
+                "deployment"
+            ],
+            "autoTrigger": [
+                "studio-coach",
+                "project-shipper"
+            ]
+        },
+        "feature": {
+            "steps": [
+                "design",
+                "implementation",
+                "testing",
+                "deployment"
+            ],
+            "autoTrigger": [
+                "ui-designer",
+                "frontend-developer",
+                "test-writer-fixer"
+            ]
+        }
+    },
+    "memories": {
+        "enabled": true,
+        "contextWindow": 100000,
+        "maxMemories": 50,
+        "categories": [
+            "project_preferences",
+            "coding_patterns",
+            "user_feedback",
+            "technical_decisions",
+            "team_preferences",
+            "best_practices"
+        ],
+        "autoCapture": {
+            "decisions": true,
+            "preferences": true,
+            "patterns": true,
+            "feedback": false
+        },
+        "retention": {
+            "decisions": "1-year",
+            "preferences": "6-months",
+            "patterns": "3-months",
+            "feedback": "1-month"
+        }
+    }
+}

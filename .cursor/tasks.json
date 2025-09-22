@@ -1,0 +1,340 @@
+{
+    "version": "1.0.0",
+    "project": {
+        "name": "Studio AI Agents for Cursor",
+        "type": "agent-system",
+        "sprint_duration": "6-days",
+        "methodology": "rapid-development"
+    },
+    "departments": {
+        "engineering": {
+            "name": "Engineering",
+            "color": "#3B82F6",
+            "description": "Build robust, scalable, and performant systems",
+            "agents": [
+                "ai-engineer",
+                "backend-architect",
+                "devops-automator",
+                "frontend-developer",
+                "mobile-app-builder",
+                "rapid-prototyper",
+                "test-writer-fixer"
+            ]
+        },
+        "design": {
+            "name": "Design",
+            "color": "#EC4899",
+            "description": "Create beautiful, functional, and delightful user experiences",
+            "agents": [
+                "brand-guardian",
+                "ui-designer",
+                "ux-researcher",
+                "visual-storyteller",
+                "whimsy-injector"
+            ]
+        },
+        "marketing": {
+            "name": "Marketing",
+            "color": "#10B981",
+            "description": "Drive growth, engagement, and brand awareness",
+            "agents": [
+                "app-store-optimizer",
+                "content-creator",
+                "growth-hacker",
+                "instagram-curator",
+                "reddit-community-builder",
+                "tiktok-strategist",
+                "twitter-engager"
+            ]
+        },
+        "product": {
+            "name": "Product",
+            "color": "#F59E0B",
+            "description": "Shape product strategy and user value",
+            "agents": [
+                "feedback-synthesizer",
+                "sprint-prioritizer",
+                "trend-researcher"
+            ]
+        },
+        "project-management": {
+            "name": "Project Management",
+            "color": "#8B5CF6",
+            "description": "Coordinate teams and ensure successful delivery",
+            "agents": [
+                "experiment-tracker",
+                "project-shipper",
+                "studio-producer"
+            ]
+        },
+        "studio-operations": {
+            "name": "Studio Operations",
+            "color": "#6B7280",
+            "description": "Keep the studio running smoothly and efficiently",
+            "agents": [
+                "analytics-reporter",
+                "finance-tracker",
+                "infrastructure-maintainer",
+                "legal-compliance-checker",
+                "support-responder"
+            ]
+        },
+        "testing": {
+            "name": "Testing & QA",
+            "color": "#EF4444",
+            "description": "Ensure quality, performance, and reliability",
+            "agents": [
+                "api-tester",
+                "performance-benchmarker",
+                "test-results-analyzer",
+                "tool-evaluator",
+                "workflow-optimizer"
+            ]
+        },
+        "bonus": {
+            "name": "Bonus",
+            "color": "#F59E0B",
+            "description": "Specialized agents for unique situations",
+            "agents": [
+                "joker",
+                "studio-coach"
+            ]
+        }
+    },
+    "task_types": {
+        "feature": {
+            "name": "Feature Development",
+            "color": "#10B981",
+            "icon": "🚀",
+            "workflow": [
+                "design",
+                "implementation",
+                "testing",
+                "deployment"
+            ],
+            "auto_trigger": [
+                "ui-designer",
+                "frontend-developer",
+                "test-writer-fixer"
+            ]
+        },
+        "bug_fix": {
+            "name": "Bug Fix",
+            "color": "#EF4444",
+            "icon": "🐛",
+            "workflow": [
+                "analysis",
+                "fix",
+                "test",
+                "deploy"
+            ],
+            "auto_trigger": [
+                "test-writer-fixer",
+                "frontend-developer"
+            ]
+        },
+        "performance": {
+            "name": "Performance Optimization",
+            "color": "#F59E0B",
+            "icon": "⚡",
+            "workflow": [
+                "analysis",
+                "optimization",
+                "benchmark",
+                "deploy"
+            ],
+            "auto_trigger": [
+                "performance-benchmarker",
+                "backend-architect"
+            ]
+        },
+        "design": {
+            "name": "Design Task",
+            "color": "#EC4899",
+            "icon": "🎨",
+            "workflow": [
+                "research",
+                "design",
+                "prototype",
+                "handoff"
+            ],
+            "auto_trigger": [
+                "ui-designer",
+                "ux-researcher"
+            ]
+        },
+        "content": {
+            "name": "Content Creation",
+            "color": "#8B5CF6",
+            "icon": "📝",
+            "workflow": [
+                "strategy",
+                "creation",
+                "optimization",
+                "distribution"
+            ],
+            "auto_trigger": [
+                "content-creator",
+                "growth-hacker"
+            ]
+        },
+        "research": {
+            "name": "Research & Analysis",
+            "color": "#3B82F6",
+            "icon": "🔍",
+            "workflow": [
+                "gather",
+                "analyze",
+                "synthesize",
+                "recommend"
+            ],
+            "auto_trigger": [
+                "trend-researcher",
+                "feedback-synthesizer"
+            ]
+        }
+    },
+    "priorities": {
+        "critical": {
+            "name": "Critical",
+            "color": "#DC2626",
+            "icon": "🚨",
+            "description": "Blocking other work, urgent security issues"
+        },
+        "high": {
+            "name": "High",
+            "color": "#EA580C",
+            "icon": "🔥",
+            "description": "Important for current sprint goals"
+        },
+        "medium": {
+            "name": "Medium",
+            "color": "#CA8A04",
+            "icon": "📈",
+            "description": "Valuable but not time-sensitive"
+        },
+        "low": {
+            "name": "Low",
+            "color": "#65A30D",
+            "icon": "📋",
+            "description": "Nice to have, backlog items"
+        }
+    },
+    "statuses": {
+        "pending": {
+            "name": "Pending",
+            "color": "#6B7280",
+            "icon": "⏳",
+            "description": "Not yet started"
+        },
+        "in_progress": {
+            "name": "In Progress",
+            "color": "#3B82F6",
+            "icon": "🔄",
+            "description": "Currently being worked on"
+        },
+        "review": {
+            "name": "Review",
+            "color": "#F59E0B",
+            "icon": "👀",
+            "description": "Ready for review and feedback"
+        },
+        "done": {
+            "name": "Done",
+            "color": "#10B981",
+            "icon": "✅",
+            "description": "Completed successfully"
+        },
+        "blocked": {
+            "name": "Blocked",
+            "color": "#DC2626",
+            "icon": "🚫",
+            "description": "Waiting for dependencies or decisions"
+        },
+        "deferred": {
+            "name": "Deferred",
+            "color": "#8B5CF6",
+            "icon": "⏭️",
+            "description": "Postponed to future sprint"
+        },
+        "cancelled": {
+            "name": "Cancelled",
+            "color": "#6B7280",
+            "icon": "❌",
+            "description": "No longer needed"
+        }
+    },
+    "workflows": {
+        "sprint": {
+            "name": "6-Day Sprint",
+            "description": "Rapid development sprint methodology",
+            "phases": [
+                {
+                    "name": "Planning",
+                    "duration": "0.5 days",
+                    "auto_trigger": [
+                        "studio-producer",
+                        "sprint-prioritizer"
+                    ]
+                },
+                {
+                    "name": "Development",
+                    "duration": "4 days",
+                    "auto_trigger": [
+                        "project-shipper",
+                        "rapid-prototyper"
+                    ]
+                },
+                {
+                    "name": "Testing & QA",
+                    "duration": "1 day",
+                    "auto_trigger": [
+                        "test-writer-fixer",
+                        "api-tester"
+                    ]
+                },
+                {
+                    "name": "Deployment",
+                    "duration": "0.5 days",
+                    "auto_trigger": [
+                        "devops-automator",
+                        "project-shipper"
+                    ]
+                }
+            ]
+        },
+        "feature": {
+            "name": "Feature Development",
+            "description": "End-to-end feature development workflow",
+            "phases": [
+                {
+                    "name": "Design",
+                    "auto_trigger": [
+                        "ui-designer",
+                        "ux-researcher"
+                    ]
+                },
+                {
+                    "name": "Implementation",
+                    "auto_trigger": [
+                        "frontend-developer",
+                        "backend-architect"
+                    ]
+                },
+                {
+                    "name": "Testing",
+                    "auto_trigger": [
+                        "test-writer-fixer",
+                        "api-tester"
+                    ]
+                },
+                {
+                    "name": "Deployment",
+                    "auto_trigger": [
+                        "devops-automator"
+                    ]
+                }
+            ]
+        }
+    }
+}

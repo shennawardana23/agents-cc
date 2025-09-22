@@ -1,0 +1,608 @@
+---
+description: Common security patterns and standards across Go and PHP projects for secure application development
+globs: **/*.{go,php}
+alwaysApply: true
+---
+
+# Security Standards
+
+This rule defines common security patterns and standards used across our Go and PHP projects to ensure secure application development.
+
+## 🔐 Common Security Measures
+
+### **1. Input Validation**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Comprehensive input validation
+type CreateUserRequest struct {
+    FullName string `json:"full_name" validate:"required,min=2,max=100"`
+    Email    string `json:"email" validate:"required,email"`
+    Password string `json:"password" validate:"required,min=8"`
+    Phone    string `json:"phone,omitempty" validate:"omitempty,len=10"`
+}
+
+func (s *userService) CreateUser(ctx context.Context, req api.CreateUserRequest) error {
+    // Validate struct
+    if err := s.validator.Struct(req); err != nil {
+        s.logger.Error(ctx, "Validation failed", "error", err)
+        return exception.NewValidationError(err.Error())
+    }
+
+    // Additional business rule validation
+    if !isValidEmail(req.Email) {
+        return exception.NewValidationError("invalid email format")
+    }
+
+    if len(req.Password) < 8 {
+        return exception.NewValidationError("password must be at least 8 characters")
+    }
+
+    return s.userRepo.CreateUser(ctx, entity)
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter form validation
+public function create_user() {
+    // Set validation rules
+    $this->form_validation->set_rules('username', 'Username',
+        'required|min_length[3]|max_length[50]|alpha_numeric');
+    $this->form_validation->set_rules('email', 'Email',
+        'required|valid_email|is_unique[users.email]');
+    $this->form_validation->set_rules('password', 'Password',
+        'required|min_length[8]|regex_match[/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/]');
+    $this->form_validation->set_rules('phone', 'Phone',
+        'regex_match[/^[0-9+\-\(\)\s]+$/]');
+
+    if ($this->form_validation->run() == FALSE) {
+        $this->session->set_flashdata('error', validation_errors());
+        redirect('user/add');
+        return;
+    }
+
+    // Additional custom validation
+    if (!$this->is_valid_username($this->input->post('username'))) {
+        $this->session->set_flashdata('error', 'Username contains invalid characters');
+        redirect('user/add');
+        return;
+    }
+}
+```
+
+### **2. SQL Injection Prevention**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Parameterized queries with query builder
+func (r *userRepository) FindUsersByStatus(ctx context.Context, status int) ([]User, error) {
+    qb := querybuilder.NewBuilder(`SELECT id, email, full_name FROM users`)
+        .Where(`status = ?`, status)
+        .OrderBy(`created_date`, `DESC`)
+        .Limit(10)
+
+    rows, err := r.db.QueryContext(ctx, qb.Build(), qb.Values()...)
+    if err != nil {
+        return nil, fmt.Errorf("failed to find users: %w", err)
+    }
+    defer rows.Close()
+
+    var users []User
+    for rows.Next() {
+        var user User
+        err := rows.Scan(&user.ID, &user.Email, &user.FullName)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan user: %w", err)
+        }
+        users = append(users, user)
+    }
+
+    return users, nil
+}
+
+// ❌ Never use string concatenation
+// query := fmt.Sprintf("SELECT * FROM users WHERE id = %s", userID) // DANGEROUS
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: CodeIgniter query builder
+public function get_user_by_email($email) {
+    $this->db->select('id, username, email, status');
+    $this->db->from('users');
+    $this->db->where('email', $email);
+    $this->db->where('status', 1);
+    $query = $this->db->get();
+    return $query->first_row();
+}
+
+public function search_users($search_term) {
+    // Safe parameterized query
+    $this->db->select('*');
+    $this->db->from('users');
+    $this->db->like('username', $search_term);
+    $this->db->or_like('email', $search_term);
+    $query = $this->db->get();
+    return $query->result();
+}
+
+// ❌ Avoid raw queries
+// $query = "SELECT * FROM users WHERE email = '$email'"; // DANGEROUS
+```
+
+### **3. XSS Protection**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: HTML template escaping and sanitization
+func (h *userHandler) DisplayUserProfile(w http.ResponseWriter, r *http.Request) {
+    user := getUserFromContext(r.Context())
+
+    // Safe HTML generation using templates
+    tmpl := `
+        <div class="user-profile">
+            <h1>{{.Name}}</h1>
+            <p>{{.Bio}}</p>
+        </div>`
+
+    data := struct {
+        Name string
+        Bio  string
+    }{
+        Name: user.FullName,
+        Bio:  html.EscapeString(user.Bio), // Always escape user input
+    }
+
+    t := template.Must(template.New("profile").Parse(tmpl))
+    t.Execute(w, data)
+}
+
+// ❌ Never output raw HTML
+// fmt.Fprintf(w, "<h1>%s</h1>", userInput) // DANGEROUS
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: XSS cleaning and htmlspecialchars
+public function display_user_data($user) {
+    return [
+        'username' => htmlspecialchars($user->username, ENT_QUOTES, 'UTF-8'),
+        'email' => htmlspecialchars($user->email, ENT_QUOTES, 'UTF-8'),
+        'bio' => $this->security->xss_clean($user->bio)
+    ];
+}
+
+public function generate_html_content($content) {
+    // Use CodeIgniter's XSS cleaning
+    $clean_content = $this->security->xss_clean($content);
+
+    // Manual escaping for output
+    return htmlspecialchars($clean_content, ENT_QUOTES, 'UTF-8');
+}
+
+// ❌ Avoid direct output
+// echo $user_input; // DANGEROUS
+```
+
+### **4. CSRF Protection**
+
+#### PHP Pattern (CodeIgniter)
+
+```php
+// ✅ Preferred: CSRF protection in config
+$config['csrf_protection'] = TRUE;
+$config['csrf_token_name'] = 'csrf_token';
+$config['csrf_cookie_name'] = 'csrf_cookie';
+$config['csrf_expire'] = 7200;
+
+// In form views
+<form action="<?= site_url('user/create') ?>" method="post">
+    <input type="hidden" name="<?= $this->security->get_csrf_token_name() ?>"
+           value="<?= $this->security->get_csrf_hash() ?>">
+    <!-- Other form fields -->
+</form>
+
+// In controllers
+public function create_user() {
+    // CSRF token is automatically validated by CodeIgniter
+    // No additional validation needed
+    $data = $this->input->post();
+    // Process data...
+}
+```
+
+### **5. Authentication & Authorization**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: JWT middleware with role-based access
+func JWTAuth(requiredRoles ...string) gin.HandlerFunc {
+    return func(c *gin.Context) {
+        authHeader := c.GetHeader("Authorization")
+        if authHeader == "" {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": "Authorization header required",
+            })
+            c.Abort()
+            return
+        }
+
+        token := strings.TrimPrefix(authHeader, "Bearer ")
+        payload, err := authentication.VerifyToken(token)
+        if err != nil {
+            c.JSON(http.StatusUnauthorized, gin.H{
+                "error": "Invalid or expired token",
+            })
+            c.Abort()
+            return
+        }
+
+        // Check roles
+        if len(requiredRoles) > 0 {
+            userRole := payload.Role
+            hasRole := false
+            for _, role := range requiredRoles {
+                if userRole == role {
+                    hasRole = true
+                    break
+                }
+            }
+            if !hasRole {
+                c.JSON(http.StatusForbidden, gin.H{
+                    "error": "Insufficient permissions",
+                })
+                c.Abort()
+                return
+            }
+        }
+
+        c.Set("user", payload)
+        c.Next()
+    }
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: Session-based auth with role checking
+class Auth extends MY_Controller {
+    public function __construct() {
+        parent::__construct();
+        $this->check_login();
+    }
+
+    private function check_login() {
+        if (!$this->session->userdata('user_id')) {
+            redirect('login');
+            return;
+        }
+    }
+
+    public function check_permission($required_permission) {
+        $user_permissions = $this->session->userdata('permissions');
+
+        if (!in_array($required_permission, $user_permissions)) {
+            $this->session->set_flashdata('error', 'Access denied');
+            redirect('dashboard');
+            return false;
+        }
+
+        return true;
+    }
+}
+
+// Usage in controllers
+class Admin extends MY_Controller {
+    public function __construct() {
+        parent::__construct();
+        $this->check_permission('admin_access');
+    }
+
+    public function manage_users() {
+        // Only accessible to admins
+        $this->load->view('admin/user_management');
+    }
+}
+```
+
+### **6. Session Security**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Secure session configuration
+func configureSecureSession() *scs.SessionManager {
+    return scs.NewSessionManager(
+        scs.SessionConfig{
+            Cookie: scs.CookieConfig{
+                Name:     "session",
+                Path:     "/",
+                Domain:   "example.com",
+                MaxAge:   24 * time.Hour,
+                Secure:   true,  // HTTPS only
+                HttpOnly: true,  // Prevent XSS access
+                SameSite: http.SameSiteLaxMode,
+            },
+            IdleTimeout:    30 * time.Minute,
+            AbsoluteTimeout: 24 * time.Hour,
+        },
+    )
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: Secure session configuration
+$config['sess_driver'] = 'files';
+$config['sess_cookie_name'] = 'myapp_session';
+$config['sess_expire_on_close'] = FALSE;
+$config['sess_expiration'] = 7200; // 2 hours
+$config['sess_save_path'] = APPPATH . 'cache/sessions/';
+$config['sess_match_ip'] = TRUE; // IP validation
+$config['sess_time_to_update'] = 300; // Update every 5 minutes
+$config['sess_regenerate_destroy'] = TRUE; // Regenerate on auth
+
+// Enhanced session security in MY_Controller
+private function enhance_session_security() {
+    if ($this->session && method_exists($this->session, 'userdata')) {
+        // Regenerate session ID periodically
+        if (!$this->session->userdata('last_regenerate') ||
+            time() - $this->session->userdata('last_regenerate') > 300) {
+            $this->session->sess_regenerate(TRUE);
+            $this->session->set_userdata('last_regenerate', time());
+        }
+
+        // Destroy session on suspicious activity
+        if ($this->detect_suspicious_activity()) {
+            $this->session->sess_destroy();
+            redirect('login');
+        }
+    }
+}
+```
+
+### **7. File Upload Security**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Secure file upload handling
+func (h *fileHandler) UploadFile(c *gin.Context) {
+    file, err := c.FormFile("file")
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "No file uploaded"})
+        return
+    }
+
+    // Validate file size (max 5MB)
+    if file.Size > 5*1024*1024 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "File too large"})
+        return
+    }
+
+    // Validate file type
+    allowedTypes := map[string]bool{
+        "image/jpeg": true,
+        "image/png":  true,
+        "image/gif":  true,
+        "application/pdf": true,
+    }
+
+    if !allowedTypes[file.Filename] {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "File type not allowed"})
+        return
+    }
+
+    // Generate secure filename
+    filename := fmt.Sprintf("%s_%d%s",
+        uuid.New().String(),
+        time.Now().Unix(),
+        filepath.Ext(file.Filename))
+
+    // Save file
+    if err := c.SaveUploadedFile(file, "./uploads/"+filename); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"filename": filename})
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: Secure upload configuration
+$config['upload_path'] = './uploads/';
+$config['allowed_types'] = 'gif|jpg|png|jpeg|pdf|doc|docx';
+$config['max_size'] = 2048; // 2MB
+$config['max_width'] = 1024;
+$config['max_height'] = 768;
+$config['encrypt_name'] = TRUE; // Random filename
+$config['remove_spaces'] = TRUE;
+$config['xss_clean'] = TRUE;
+
+public function upload_file() {
+    $config['upload_path'] = './uploads/';
+    $config['allowed_types'] = 'gif|jpg|png|jpeg|pdf|doc|docx';
+    $config['max_size'] = 2048;
+    $config['encrypt_name'] = TRUE;
+
+    $this->load->library('upload', $config);
+
+    if (!$this->upload->do_upload('userfile')) {
+        $error = ['error' => $this->upload->display_errors()];
+        $this->session->set_flashdata('error', $error['error']);
+        redirect('upload');
+    } else {
+        $data = $this->upload->data();
+
+        // Validate file content
+        if (!$this->is_valid_image($data['full_path'])) {
+            // Delete invalid file
+            unlink($data['full_path']);
+            $this->session->set_flashdata('error', 'Invalid file content');
+            redirect('upload');
+            return;
+        }
+
+        // Process uploaded file
+        $this->process_uploaded_file($data['file_name']);
+    }
+}
+```
+
+### **8. Error Handling & Logging**
+
+#### Go Pattern
+
+```go
+// ✅ Preferred: Secure error handling without information leakage
+func (s *userService) GetUserByID(ctx context.Context, userID string) (*User, error) {
+    if userID == "" {
+        return nil, exception.NewValidationError("user ID is required")
+    }
+
+    user, err := s.userRepo.FindByID(ctx, userID)
+    if err != nil {
+        // Log internal error with full details
+        s.logger.Error(ctx, "Database error", "error", err, "userID", userID)
+
+        // Return generic error to user
+        return nil, exception.NewInternalError("failed to retrieve user")
+    }
+
+    if user == nil {
+        // Log user not found (not an error)
+        s.logger.Info(ctx, "User not found", "userID", userID)
+
+        // Return specific not found error
+        return nil, exception.NewNotFoundError("user not found")
+    }
+
+    return user, nil
+}
+```
+
+#### PHP Pattern
+
+```php
+// ✅ Preferred: Secure error handling and logging
+public function create_user() {
+    try {
+        // Validate input
+        if ($this->form_validation->run() == FALSE) {
+            $errors = $this->form_validation->error_array();
+            log_message('info', 'User creation validation failed: ' . json_encode($errors));
+            $this->session->set_flashdata('error', 'Please check your input');
+            redirect('user/add');
+            return;
+        }
+
+        // Database operation
+        if (!$this->db->insert('users', $userData)) {
+            log_message('error', 'Database insert failed: ' . $this->db->error());
+            $this->session->set_flashdata('error', 'Failed to create user. Please try again.');
+            redirect('user/add');
+            return;
+        }
+
+        log_message('info', 'User created successfully: ' . $this->db->insert_id());
+        $this->session->set_flashdata('success', 'User created successfully');
+        redirect('user');
+
+    } catch (Exception $e) {
+        log_message('error', 'Unexpected error in create_user: ' . $e->getMessage());
+        $this->session->set_flashdata('error', 'An unexpected error occurred');
+        redirect('user/add');
+    }
+}
+```
+
+## 🛡️ Security Headers
+
+### **Common Security Headers**
+
+```php
+// PHP - Set security headers in MY_Controller
+private function set_security_headers() {
+    header('X-Frame-Options: DENY');
+    header('X-Content-Type-Options: nosniff');
+    header('X-XSS-Protection: 1; mode=block');
+    header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    header('Referrer-Policy: strict-origin-when-cross-origin');
+    header('Content-Security-Policy: default-src \'self\'; script-src \'self\' \'unsafe-inline\'');
+}
+```
+
+```go
+// Go - Security headers middleware
+func SecurityHeaders() gin.HandlerFunc {
+    return func(c *gin.Context) {
+        c.Header("X-Frame-Options", "DENY")
+        c.Header("X-Content-Type-Options", "nosniff")
+        c.Header("X-XSS-Protection", "1; mode=block")
+        c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+        c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
+        c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'")
+
+        c.Next()
+    }
+}
+```
+
+## 🔒 Security Best Practices
+
+### **1. Password Security**
+
+- Use strong hashing algorithms (bcrypt, Argon2)
+- Implement password complexity requirements
+- Use secure random salt generation
+- Implement rate limiting on login attempts
+
+### **2. Database Security**
+
+- Use parameterized queries or prepared statements
+- Implement proper access controls
+- Encrypt sensitive data at rest
+- Regular security audits and updates
+
+### **3. Session Management**
+
+- Secure session configuration
+- Session timeout and regeneration
+- IP address validation
+- Secure cookie settings
+
+### **4. Input Validation**
+
+- Validate all user inputs
+- Sanitize and escape outputs
+- Use allowlists for validation
+- Implement proper error handling
+
+### **5. File Upload Security**
+
+- Validate file types and sizes
+- Use secure file names
+- Scan files for malware
+- Store files outside web root
+
+### **6. Error Handling**
+
+- Don't expose sensitive information
+- Log security events
+- Implement proper error pages
+- Use generic error messages for users
+
+These security standards ensure our applications are protected against common vulnerabilities and follow security best practices for both Go and PHP development.
